@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { MapPin, CalendarCheck, Bus, Handshake, Heart } from "lucide-react"
 import { fetchFollowedJobIds, fetchJobs } from '@/lib/api/fetching';
 import { Job } from '@/lib/interfaces/job';
+import Image from 'next/image';
 
 function SearchOffers() {
 
@@ -69,19 +70,33 @@ function SearchOffers() {
                             className="p-4 bg-slate-100 rounded-xl flex flex-col gap-2"
                         >
                             {/* Job Title, Payment & Follow */}
-                            <div className='flex justify-between'>
-                                <Link 
-                                    href={`/home/search/${job.id}`}
-                                    className='font-bold text-lg hover:text-blue-600 transition-colors cursor-pointer'
-                                >
-                                    <p>{job.short_description}</p>
-                                    <div className="flex gap-1 text-lg font-bold">
-                                        <p>{job.payment || ""}</p>
-                                        <p>{job.currency || ""}</p>
-                                    </div>
-                                </Link>
+                            <div className='flex justify-between items-center'>
                                 
-                                <div onClick={() => handleFollowed(job.id)}>
+                                {/* Firm Logo */}
+                                <div className='flex gap-4'>
+                                    <Image 
+                                        src={"/default-job-image.png"}
+                                        width={60}
+                                        height={50}
+                                        alt='Job Image'
+                                        className='rounded-md'
+                                    />  
+
+                                    <Link 
+                                        href={`/home/search/${job.id}`}
+                                        className='font-bold text-lg hover:text-blue-600 transition-colors cursor-pointer justify-center flex flex-col'
+                                    >
+                                        <p>{job.short_description}</p>
+                                        <div className="flex gap-1 text-lg font-bold">
+                                            <p className='text-xl'>{job.payment || ""}</p>
+                                            <p className='text-sm'>{job.currency || ""}</p>
+                                        </div>
+                                    </Link> 
+                                </div>
+                                
+                                <div 
+                                    onClick={() => handleFollowed(job.id)}
+                                >
                                     {isFollowed ? (
                                         <Heart className="cursor-pointer fill-red-500 text-red-500" size={20} />
                                     ) : (

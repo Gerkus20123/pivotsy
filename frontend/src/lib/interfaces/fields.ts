@@ -8,17 +8,17 @@ export interface CategoryOption {
         id: string;
         name: string;
     }[];
-}
+};
 
 export interface CurrencyOption {
     id: string,
     name: string
-}
+};
 
 export interface SelectOption {
     label: string;
     value: string;
-}
+};
 
 export interface FieldConfig<T extends FieldValues> {
     name: Path<T>;
@@ -30,11 +30,17 @@ export interface FieldConfig<T extends FieldValues> {
     defaultChecked?: boolean;
     categories?: CategoryOption[];
     currency?: { id: string; name: string }[];
-}
+};
 
 export interface FieldFormProps<T extends FieldValues> {
     onSubmit: (data: T) => void;
     form: UseFormReturn<T>;
     fieldsConfig: FieldConfig<T>[];
     formId: string;
+};
+
+export interface Author {
+    name?: string;
+    phone_number?: string;
+    company_name?: string;
 }

@@ -81,6 +81,7 @@ function AddJobPost() {
     { name: 'experience_requirement', label: 'Experience Requirement', type: 'checkbox', options: WorkExperienceOptions},
     { name: 'transport_availability', label: 'Transport Availability', type: 'checkbox', options: TransportAvailabilityOptions},
     { name: 'payment', label: 'Payment', type: 'number'},
+    { name: 'location', label: 'Job Location', type: 'text'},
     { name: 'currency', label: 'Currency', type: 'currency_selector', currency: CurrencyOptionsData},
     { name: 'additional_requirements', label: 'Additional Requirements', type: 'checkbox', options: AdditionalRequirements},
     { name: 'type_of_work', label: 'Type Of Work', type: 'checkbox', options: TypeOfWorkOptions},

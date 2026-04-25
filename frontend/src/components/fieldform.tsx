@@ -8,21 +8,14 @@ import {
     FieldLabel,
 } from "@/components/ui/field"
 
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-
 import { Input } from '@/components/ui/input';
-import { Controller, FieldValues, Path } from 'react-hook-form';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
-import { ArrowLeft, Menu } from 'lucide-react'
-import { CategoryOption, FieldConfig, FieldFormProps, CurrencyOption } from '@/lib/interfaces/fields'
-import { Button } from './ui/button'
+import { Controller, ControllerRenderProps, FieldValues, Path } from 'react-hook-form';
+import { Author, FieldConfig, FieldFormProps } from '@/lib/interfaces/fields'
+import SelectCase from './fieldFormCases/select'
+import CategorySelectCase from './fieldFormCases/categorySelectCase';
+import CurrencySelectCase from './fieldFormCases/currencySelectCase';
+import TextArea from './fieldFormCases/textarea';
 
 export type FieldTypes = 
     | 'text' 
@@ -51,45 +44,36 @@ function FieldForm<T extends FieldValues>(
     const getFieldId = (name: string, suffix?: string) => 
         `${formId}-${name}${suffix ? `-${suffix}` : ''}`;
 
-    const renderInput = (config: FieldConfig<T>, field: any, fieldState: any) => {
+    const renderInput = (
+        config: FieldConfig<T>, 
+        field: ControllerRenderProps<T, Path<T>>, 
+        fieldState: any
+    ) => {
         const baseId = getFieldId(config.name as string);
 
         switch (config.type) {
 
             case 'select':
                 return (
-                    <Select 
-                        onValueChange={field.onChange} 
-                        value={field.value}
-                    >
-                        <SelectTrigger 
-                            id={baseId} 
-                            className="rounded-lg"
-                        >
-                            <SelectValue placeholder={config.placeholder} />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-lg">
-                            {config.options?.map((opt) => (
-                                <SelectItem 
-                                    key={opt.value} 
-                                    value={opt.value}
-                                >
-                                    {opt.value}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                   <SelectCase field={field} base_id={baseId} config={config}/> 
                 );
-    
+                
             case 'textarea':
                 return (
-                    <textarea
-                        {...field}
-                        id={baseId}
-                        placeholder={config.placeholder}
-                        className="flex min-h-[120px] w-full rounded-lg border border-input bg-background 
-                        px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none 
-                        focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    // <textarea
+                    //     {...field}
+                    //     id={baseId}
+                    //     placeholder={config.placeholder}
+                    //     className="flex min-h-[120px] w-full rounded-lg border border-input bg-background 
+                    //     px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none 
+                    //     focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    // />
+                    <TextArea 
+                        value={field.value || ""} 
+                        onChange={(val: string) => field.onChange(val)} 
+                        field={field} 
+                        config={config} 
+                        base_id={baseId} 
                     />
                 );
     
@@ -149,149 +133,18 @@ function FieldForm<T extends FieldValues>(
                     </div>
                 );
             
-            case 'category_selector': {
+            case 'category_selector': 
+                return (<CategorySelectCase field={field} base_id={baseId} config={config} form={form}/>);
 
-                const [selectedCat, setSelectedCat] = React.useState<CategoryOption | null>(null);
-                const [isSheetOpened, setIsSheetOpened] = React.useState(false);
-            
-                return (
-                    <Sheet 
-                        open={isSheetOpened}
-                        onOpenChange={(open) => { 
-                            setIsSheetOpened(open);
-                            if (!open) setSelectedCat(null); 
-                        }}      
-                    >
-                        <SheetTrigger
-                            render={
-                                <button 
-                                    id={baseId}
-                                    type="button" 
-                                    className="w-full flex justify-between items-center p-2 border rounded-lg 
-                                                hover:bg-gray-50 text-sm outline-none cursor-pointer"
-                                />
-                            }
-                        >
-                            <span>{field.value || config.placeholder || "Select category..."}</span>
-                            <Menu size={18} />
-                        </SheetTrigger>
-                        <SheetContent side="top" className="rounded-xl lg:m-40 lg:p-10 m-20 p-10 mt-30">
-                            <div className="flex flex-col gap-4 p4 h-[50vh]">
-                                <h3 className="text-lg font-bold">
-                                    {selectedCat ? `Subcategories of ${selectedCat.name}` : "Choose Category"}
-                                </h3>
-            
-                                <div className="grid grid-cols-1 gap-2 overflow-y-auto">
-                                    {!selectedCat ? (
-                                        // 1. Categories
-                                        config.categories?.map((cat) => (
-                                            <button
-                                                key={cat.id}
-                                                type="button"
-                                                onClick={() => {
-                                                    if (cat.subcategory && cat.subcategory.length > 0) {
-                                                        setSelectedCat(cat);
-                                                    } else {
-                                                        form.setValue("category" as Path<T>, cat.name as any);
-                                                        form.setValue("subcategory" as Path<T>, "" as any);
-                                                        setIsSheetOpened(false);
-                                                    }
-                                                }}
-                                                className="flex justify-between items-center p-4 border 
-                                                rounded-md hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer"
-                                            >
-                                                {cat.name}
-                                                {cat.subcategory && <span className="text-gray-400">→</span>}
-                                            </button>
-                                        ))
-                                    ) : (
-                                        // 2. Subcategories
-                                        <>
-                                            <Button 
-                                                onClick={() => setSelectedCat(null)}
-                                                variant='ghost'
-                                                className="text-md text-blue-600 mb-5 cursor-pointer flex gap-1 justify-start max-w-[200px] "
-                                            >   
-                                                <ArrowLeft size={20}/>
-                                                <p>Return to categories</p>
-                                            </Button>
-                                            {selectedCat.subcategory?.map((sub) => (
-                                                <button
-                                                    key={sub.id}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        form.setValue("category" as Path<T>, selectedCat.name as any);
-                                                        form.setValue("subcategory" as Path<T>, sub.name as any);
-                                                        setIsSheetOpened(false);
-                                                    }}
-                                                    className={`p-4 border rounded-md cursor-pointer hover:border-blue-500 hover:bg-blue-50 text-left ${field.value?.includes(sub.name) ? 'border-blue-600 bg-blue-50' : ''}`}
-                                                >
-                                                    {sub.name}
-                                                </button>
-                                            ))}
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        </SheetContent>
-                    </Sheet>
-                );
-            }
-
-            case 'currency_selector': {
-                
-                const [selectedCurrency, setSelectedCurrency] = React.useState<CurrencyOption | null>(null);
-
-                return (
-                <Sheet onOpenChange={(open) => { if (!open) setSelectedCurrency(null); }}>
-                    <SheetTrigger
-                        render={
-                            <button 
-                                id={baseId}
-                                type="button" 
-                                className="w-full flex justify-between items-center p-2 border rounded-lg hover:bg-gray-50 text-sm outline-none cursor-pointer"
-                            />
-                        }
-                    >
-                        <span>{field.value || config.placeholder || "Select currency..."}</span>
-                        <Menu size={18} />
-                    </SheetTrigger>
-                    <SheetContent side="top" className="rounded-xl lg:m-40 lg:p-10 m-20 p-10 mt-30">
-                        <div className="flex flex-col gap-4 p-4 overflow-y-auto h-[50vh]">
-
-                            <h3 className="text-lg font-bold">
-                                 Choose Currency
-                            </h3>
-
-                            <div className="grid grid-cols-1 gap-2">
-                                {config.currency?.map((cur) => (
-                                    <button
-                                        key={cur.id}
-                                        type="button"
-                                        onClick={() => {
-                                            setSelectedCurrency(cur);
-                                            field.onChange(cur.name);
-                                        }}
-                                        className="flex justify-between items-center p-4 border 
-                                        rounded-md hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer"
-                                    >
-                                        {cur.name}
-                                    </button>
-                                ))}
-                            </div>
-
-                        </div>
-                    </SheetContent>
-                </Sheet>
-                );
-            }
+            case 'currency_selector':
+                return (<CurrencySelectCase field={field} base_id={baseId} form={form} config={config}/>);
 
             case 'author': {
 
-                const value = field.value || {};
+                const value = (field.value as Author) || {};
                 
                 // Helper for the field updates
-                const updateAuthor = (key: string, val: string) => {
+                const updateAuthor = (key: keyof Author, val: string) => {
                     field.onChange({
                         ...value,
                         [key]: val

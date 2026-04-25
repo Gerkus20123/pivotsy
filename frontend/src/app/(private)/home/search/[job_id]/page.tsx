@@ -71,38 +71,31 @@ function JobOffer({ params }: PageProps) {
         <div className="min-h-screen flex flex-col gap-4 p-10">
 
             {/* Image */}
-            <Image 
-                src="/default-job-image.png"
-                width={350}
-                height={250}
-                alt='Job BackGround Image'
-                className='rounded-md'
-            /> 
-
-            <div 
-                className='flex justify-end'
-                onClick={() => handleFollowed(job_id)}
-            >
-                {isFollowed ? (
-                    <Heart className="cursor-pointer fill-red-500 text-red-500" size={20} />
-                ) : (
-                    <Heart className="cursor-pointer" size={20} />
-                )}
+            <div className="relative w-full h-[300px] md:h-[450px] overflow-hidden rounded-xl shadow-sm mb-10">
+                <Image 
+                    src="/example-image.png" 
+                    alt='Job Background Image'
+                    fill
+                    className='object-cover'
+                    sizes="(max-width: 768px) 100vw, 800px"
+                    priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
 
             <div className='flex gap-4 items-center'>
 
                 {/* Firm Logo */}
-                {job.job_logo && (
+                {job.image && (
                   <Image 
-                        src={job.job_logo}
+                        src={job.image}
                         width={50}
                         height={50}
                         alt='Job Image'
                         className='rounded-md'
-                    />  
+                    />   
                 )}
-                
+                                 
                 <div>
                     {/* Created at */}
                     <div>
@@ -116,17 +109,29 @@ function JobOffer({ params }: PageProps) {
                         <p>{job.short_description}</p>
                     </div>
                 </div>  
+
+                {/* Follow a job */}
+                <div 
+                    className='flex justify-end'
+                    onClick={() => handleFollowed(job_id)}
+                >
+                    {isFollowed ? (
+                        <Heart className="cursor-pointer fill-red-500 text-red-500" size={20} />
+                    ) : (
+                        <Heart className="cursor-pointer" size={20} />
+                    )}
+                </div>
             </div>
 
             <hr></hr>
 
             <div className='flex justify-between'>
                 {/* Payment */}
-                <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
+                <div className='bg-yellow-200 p-1 rounded-md font-bold text-yellow-800 flex items-center gap-2'>
                     <HandCoins />
                     <div>               
                         <div className='flex gap-1'>
-                            <p className='text-md'>{job.payment}</p> 
+                            <p className='text-xl'>{job.payment}</p> 
                             <p className='text-md'>{job.currency}</p>
                         </div>
                     </div>
@@ -157,7 +162,7 @@ function JobOffer({ params }: PageProps) {
             
             <div className='flex justify-between'>
                 {/* Location */}
-                <div className="flex gap-2 font-bold items-center">
+                <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
                     <MapPin />
                     <p className='text-md'>{job.location}</p>
                 </div>
