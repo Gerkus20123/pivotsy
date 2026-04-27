@@ -68,29 +68,18 @@ Pivotsy to aplikacja webowa będąca platformą do wyszukiwania ofert pracy oraz
 - (public) – dostępne bez logowania
 - (private) – wymagające autoryzacji
 
-# Obecna struktura projektu #
-pivotsy/
-│
-├── frontend/        # Next.js app
-│
-├── backend/         # Flask API
-│   ├── models/
-│   ├── routes/
-│   ├── schemas/
-│   └── services/
-│
-├── database/        # SQLite DB
-│
-└── README.md
-
 # ⚙️ Uruchomienie projektu #
+```bash
 cd backend
 pip install -r requirements.txt
 flask run
+```
 
+```bash
 cd frontend
 npm install
 npm run dev
+```
 
 # 📌 Status projektu #
 Projekt jest w trakcie rozwoju. Główne funkcjonalności działają, ale planowane są kolejne rozszerzenia i poprawki UX/UI.
