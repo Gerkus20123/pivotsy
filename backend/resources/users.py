@@ -8,10 +8,11 @@ from flask_jwt_extended import (
     create_refresh_token, 
     get_jwt_identity
 )
+from sqlalchemy.exc import SQLAlchemyError
 
 from blocklist import BLOCKLIST
 from models.user_model import UserModel
-from schemas import JobSchema, UserSchema, UserLoginSchema
+from schemas import JobSchema, UserSchema, UserLoginSchema, UserUpdateSchema
 from db import db
 
 blp = Blueprint("Users", "users", description="Users endpoints")
@@ -34,6 +35,26 @@ class User(MethodView):
         user = UserModel.query.get_or_404(user_id)
         return user
 
+    @blp.arguments(UserUpdateSchema)
+    @blp.response(200, UserSchema)
+    def put(self, user_data, user_id):
+        """Edit user data"""
+        
+        user = UserModel.query.get_or_404(user_id)
+
+        user.name = user_data.get("name", user.name)
+        user.email = user_data.get("email", user.email)
+        user.phone_number = user_data.get("phone_number", user.phone_number)
+        user.company_name = user_data.get("company_name", user.company_name)
+        
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except SQLAlchemyError:
+            abort(500, message="Error while updating the user basic information.")
+
+        return user
+    
 @blp.route("/register")
 class UserRegister(MethodView):
     
@@ -126,3 +147,15 @@ class UserFollowedJob(MethodView):
             return {"is_following": False, "message": "User does not follow this job."}, 200
 
         return job
+
+@blp.route("/user/<int:user_id>/jobs")
+class UserJobs(MethodView):
+
+    @jwt_required()
+
+    @blp.response(200, JobSchema(many=True))
+    def get(self, user_id):
+        """Get all job offers of a user"""
+
+        user = UserModel.query.get_or_404(user_id)
+        return user.jobs

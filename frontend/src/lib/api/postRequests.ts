@@ -10,3 +10,11 @@ export const toggleFollowJob = async (jobId: number) => {
 export const createAJob = async (data: any) => {
     await axiosInstance.post("/jobs", data)
 };
+
+// Edit user data
+export const editUserData = async (data: any) => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return null;
+
+    await axiosInstance.put(`/users/${userId}`, data)
+}

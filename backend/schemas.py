@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, post_load
+from marshmallow import EXCLUDE, Schema, fields, post_load
 
 class AuthorInfoSchema(Schema):
     name = fields.Str(required=True)
@@ -19,6 +19,17 @@ class UserLoginSchema(Schema):
     name = fields.Str(required=True)
     password = fields.Str(required=True, load_only=True)
 
+class UserUpdateSchema(Schema):
+    name = fields.Str()
+    email = fields.Email()
+    phone_number = fields.Str()
+    company_name = fields.Str()
+
+class UserForJobSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str(dump_only=True)
+    phone_number = fields.Str(dump_only=True)
+    company_name = fields.Str(dump_only=True)
 class PlainJobSchema(Schema):
     """Schema for job"""
     id = fields.Int(dump_only=True)
@@ -42,6 +53,7 @@ class PlainJobSchema(Schema):
     job_author_name = fields.Str(dump_only=True)
     job_phone_number = fields.Str(dump_only=True)
     job_company_name = fields.Str(dump_only=True)
+    user = fields.Nested(UserForJobSchema(), dump_only=True)
 
     @post_load
     def process_author_info(self, data, **kwargs):

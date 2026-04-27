@@ -3,6 +3,7 @@ import { Montserrat, JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "../hooks/auth"
+import CustomScroll from "@/components/scrollbar";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -30,9 +31,11 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", font.variable, jetbrainsMono.variable, "font-sans", inter.variable)}
     >
-      <body className={cn("min-h-full flex flex-col font-montserrat", font.className)}>
+      <body className={cn("h-full font-montserrat overflow-hidden", font.className)}>
         <AuthProvider>
-          {children}
+          <CustomScroll className="h-full">
+            {children}
+          </CustomScroll>
         </AuthProvider>
       </body>
     </html>

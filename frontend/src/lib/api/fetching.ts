@@ -81,7 +81,7 @@ export const fetchFollowedJobs = async ():Promise<Job[]> => {
     }
 };
 
-// Fetching current user data ()
+// Fetching current user data (objects)
 export const fetchingCurrentUserData = async ():Promise<any> => {
     try {
         const userId = localStorage.getItem("userId");
@@ -96,3 +96,18 @@ export const fetchingCurrentUserData = async ():Promise<any> => {
         return null;
     }
 };
+
+// Fetching all user created jobs (objects)
+export const fetchAllUserCreatedJobOffers = async ():Promise<Job[]> => {
+    try {
+
+        const userId = localStorage.getItem("userId");
+        if (!userId) return [];
+
+        const response = await axiosInstance.get(`/user/${userId}/jobs`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching jobs of a user:", error);
+        throw error;
+    }
+}

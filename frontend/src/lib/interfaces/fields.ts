@@ -34,7 +34,7 @@ export interface FieldConfig<T extends FieldValues> {
 
 export interface FieldFormProps<T extends FieldValues> {
     onSubmit: (data: T) => void;
-    form: UseFormReturn<T>;
+    form: UseFormReturn<T, any>;
     fieldsConfig: FieldConfig<T>[];
     formId: string;
 };

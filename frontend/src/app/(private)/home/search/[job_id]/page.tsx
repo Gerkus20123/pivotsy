@@ -68,155 +68,182 @@ function JobOffer({ params }: PageProps) {
     if (!job) return <p>Offer not found.</p>;
     
     return (
-        <div className="min-h-screen flex flex-col gap-4 p-10">
+        <div>
+            <div className="min-h-screen flex flex-col gap-4 p-5">
 
-            {/* Image */}
-            <div className="relative w-full h-[300px] md:h-[450px] overflow-hidden rounded-xl shadow-sm mb-10">
-                <Image 
-                    src="/example-image.png" 
-                    alt='Job Background Image'
-                    fill
-                    className='object-cover'
-                    sizes="(max-width: 768px) 100vw, 800px"
-                    priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-            </div>
-
-            <div className='flex gap-4 items-center'>
-
-                {/* Firm Logo */}
-                {job.image && (
-                  <Image 
-                        src={job.image}
-                        width={50}
-                        height={50}
-                        alt='Job Image'
-                        className='rounded-md'
-                    />   
-                )}
-                                 
-                <div>
-                    {/* Created at */}
-                    <div>
-                        <p className="text-sm text-gray-500">
-                            Created At: {new Date(job.created_at).toLocaleDateString('pl-PL')}
-                        </p>
-                    </div>
-
-                    {/* Job Offer Title */}
-                    <div className="text-xl font-bold w-full">
-                        <p>{job.short_description}</p>
-                    </div>
-                </div>  
-
-                {/* Follow a job */}
-                <div 
-                    className='flex justify-end'
-                    onClick={() => handleFollowed(job_id)}
-                >
-                    {isFollowed ? (
-                        <Heart className="cursor-pointer fill-red-500 text-red-500" size={20} />
-                    ) : (
-                        <Heart className="cursor-pointer" size={20} />
-                    )}
+                {/* Job Background Image */}
+                <div className="relative w-full h-[300px] md:h-[450px] overflow-hidden rounded-xl shadow-sm mb-10">
+                    <Image 
+                        src="/example-image.png" 
+                        alt='Job Background Image'
+                        fill
+                        className='object-cover'
+                        sizes="(max-width: 768px) 100vw, 800px"
+                        priority
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
                 </div>
-            </div>
 
-            <hr></hr>
+                {/* Firm Logo & Created At & Title */}
+                <div className='flex gap-4 items-center'>
 
-            <div className='flex justify-between'>
-                {/* Payment */}
-                <div className='bg-yellow-200 p-1 rounded-md font-bold text-yellow-800 flex items-center gap-2'>
-                    <HandCoins />
-                    <div>               
-                        <div className='flex gap-1'>
-                            <p className='text-xl'>{job.payment}</p> 
-                            <p className='text-md'>{job.currency}</p>
+                    {/* Firm Logo */}
+                    {job.image && (
+                    <Image 
+                            src={job.image}
+                            width={50}
+                            height={50}
+                            alt='Job Image'
+                            className='rounded-md'
+                        />   
+                    )}
+                                    
+                    <div>
+                        {/* Created at */}
+                        <div>
+                            <p className="text-sm text-gray-500">
+                                Created At: {new Date(job.created_at).toLocaleDateString('pl-PL')}
+                            </p>
+                        </div>
+
+                        {/* Job Offer Title */}
+                        <div className="text-xl font-bold w-full">
+                            <p>{job.short_description}</p>
+                        </div>
+                    </div>  
+
+                    {/* Follow a job */}
+                    <div 
+                        className='flex justify-end'
+                        onClick={() => handleFollowed(job_id)}
+                    >
+                        {isFollowed ? (
+                            <Heart className="cursor-pointer fill-red-500 text-red-500" size={20} />
+                        ) : (
+                            <Heart className="cursor-pointer" size={20} />
+                        )}
+                    </div>
+                </div>
+
+                <hr></hr>
+                
+                {/* Payment & Schedule */}
+                <div className='flex justify-between'>
+                    {/* Payment */}
+                    <div className='bg-yellow-200 p-1 rounded-md font-bold text-yellow-800 flex items-center gap-2'>
+                        <HandCoins />
+                        <div>               
+                            <div className='flex gap-1'>
+                                <p className='text-xl'>{job.payment}</p> 
+                                <p className='text-md'>{job.currency}</p>
+                            </div>
                         </div>
                     </div>
+
+                    {/* Experience Requirements */}
+                    <div className='flex bg-green-200 p-1 px-2 rounded-md font-bold text-green-700 items-center'>
+                        <p className='text-md'>{job.experience_requirement}</p>
+                    </div> 
+                </div>
+                
+                {/* Agreement Type & Experience Requirements */}
+                <div className='flex justify-between'>
+                    {/* Agreement Type */}
+                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
+                        <Handshake />
+                        <p className='text-md'>{job.agreement_type}</p> 
+                    </div>
+
+                    {/* Schedule */}
+                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
+                        <CalendarCheck />
+                        <div>
+                            <p className='text-md'>{job.schedule}</p>
+                        </div>         
+                    </div>
+                </div>
+                
+                {/* Location & Transport Availability */}
+                <div className='flex justify-between'>
+                    {/* Location */}
+                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
+                        <MapPin />
+                        <p className='text-md'>{job.location}</p>
+                    </div>
+
+                    {/* Transport Availability */}
+                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
+                        <Bus />
+                        <p className='text-md'>{job.transport_availability}</p>
+                    </div>
+                </div>
+                
+                {/* Category and Subcategory & Type of Work */}
+                <div className='flex justify-between'>
+                    {/* Category and Subcategory */}
+                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
+                        <Tag />
+                        {job.subcategory ? (
+                            <p className='text-md'>{job.category} {'>'} {job.subcategory}</p>
+                        ) : (
+                            <p className='text-md'>{job.category}</p>
+                        )}
+                    </div>
+
+                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
+                        <BriefcaseBusiness />
+
+                        {/* Type of work*/}
+                        {job.type_of_work && (
+                            <p className='text-md'>{job.type_of_work}</p>
+                        )}
+                    </div>
                 </div>
 
-                {/* Schedule */}
-                <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
-                    <CalendarCheck />
-                    <div>
-                        <p className='text-md'>{job.schedule}</p>
-                    </div>         
-                </div>
+                <hr></hr>
 
-            </div>
-            
-            <div className='flex justify-between'>
-                {/* Agreement Type */}
-                <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
-                    <Handshake />
-                    <p className='text-md'>{job.agreement_type}</p> 
-                </div>
-
-                {/* Experience Requirements */}
-                <div className='flex bg-green-200 p-1 px-2 rounded-md font-bold text-green-700 items-center'>
-                    <p className='text-md'>{job.experience_requirement}</p>
-                </div> 
-            </div>
-            
-            <div className='flex justify-between'>
-                {/* Location */}
-                <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
-                    <MapPin />
-                    <p className='text-md'>{job.location}</p>
-                </div>
-
-                {/* Transport availability */}
-                <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
-                    <Bus />
-                    <p className='text-md'>{job.transport_availability}</p>
-                </div>
-            </div>
-
-            <div className='flex justify-between'>
-                {/* Category and Subcategory */}
-                <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
-                    <Tag />
-                    {job.subcategory ? (
-                        <p className='text-md'>{job.category} {'>'} {job.subcategory}</p>
-                    ) : (
-                        <p className='text-md'>{job.category}</p>
-                    )}
-                </div>
-
-                <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
-                    <BriefcaseBusiness />
-
-                    {/* Type of work*/}
-                    {job.type_of_work && (
-                        <p className='text-md'>{job.type_of_work}</p>
-                    )}
-                </div>
-            </div>
-
-            <hr></hr>
-
-            {/* Long Description */}
-            <div className="space-y-2 text-lg">
-                <p className='text-lg font-bold'>Description</p>
-                <p>{job.long_description}</p>
-            </div>
-            
-            {/* Additional Requirements */}
-            {job.additional_requirements && (
+                {/* Long Description */}
                 <div className="space-y-2 text-lg">
-                    <p className='text-lg font-bold'>Additional Requirements</p>
-                    <p>{job.additional_requirements}</p>
+                    <p className='text-lg font-bold'>Description</p>
+                    <p>{job.long_description}</p>
                 </div>
-            )}
+                
+                {/* Additional Requirements */}
+                {job.additional_requirements && (
+                    <div className="space-y-2 text-lg">
+                        <p className='text-lg font-bold'>Additional Requirements</p>
+                        <p>{job.additional_requirements}</p>
+                    </div>
+                )}
+                
+                {/* Job Offer Author Information */}
+                <div>
+                    <p className='text-lg font-bold'>Author</p>
+                    <p className='text-lg mb-2'>{job.user?.name}</p>
 
-            <hr></hr>
+                    <p className='text-lg font-bold'>Phone Number</p>
+                    <p className='text-lg mb-2'>{job.user?.phone_number}</p>
 
-            <Button>
-                Apply
-            </Button>
+                    <p className='text-lg font-bold'>Company Name</p>
+                    <p className='text-lg mb-2'>{job.user?.company_name}</p>
+                </div>
+
+                <hr></hr>
+
+                <Button
+                    className="mb-4"
+                >
+                    Apply 
+                </Button>
+            </div> 
+
+            {/* Seen By Count */}
+            <div className='flex justify-center items-center gap-2'>
+                <p>Seen: </p>
+                <p className='text-l'> 123 </p>
+            </div>
         </div>
+        
     )
 }
 

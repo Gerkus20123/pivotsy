@@ -16,6 +16,8 @@ import SelectCase from './fieldFormCases/select'
 import CategorySelectCase from './fieldFormCases/categorySelectCase';
 import CurrencySelectCase from './fieldFormCases/currencySelectCase';
 import TextArea from './fieldFormCases/textarea';
+import AuthorCase from './fieldFormCases/authorCase';
+import CheckboxCase from './fieldFormCases/checkboxCase';
 
 export type FieldTypes = 
     | 'text' 
@@ -55,19 +57,15 @@ function FieldForm<T extends FieldValues>(
 
             case 'select':
                 return (
-                   <SelectCase field={field} base_id={baseId} config={config}/> 
+                   <SelectCase 
+                        field={field} 
+                        base_id={baseId} 
+                        config={config}
+                   /> 
                 );
                 
             case 'textarea':
                 return (
-                    // <textarea
-                    //     {...field}
-                    //     id={baseId}
-                    //     placeholder={config.placeholder}
-                    //     className="flex min-h-[120px] w-full rounded-lg border border-input bg-background 
-                    //     px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none 
-                    //     focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                    // />
                     <TextArea 
                         value={field.value || ""} 
                         onChange={(val: string) => field.onChange(val)} 
@@ -95,100 +93,39 @@ function FieldForm<T extends FieldValues>(
 
             case 'checkbox':
                 return (
-                    <div className="flex flex-col gap-3 mt-2">
-                        {config.options?.map((opt) => {
-
-                            // Sprawdzamy czy wartość jest w tablicy (dla wielu zaznaczeń)
-                            const isChecked = Array.isArray(field.value) 
-                                ? field.value.includes(opt.value) 
-                                : field.value === opt.value;
-                            
-                            const checkboxId = getFieldId(config.name as string, opt.value);
-                            
-                            return (
-                                <div key={opt.value} className="flex items-center gap-2">
-                                    <Checkbox
-                                        id={checkboxId}
-                                        checked={isChecked}
-                                        onCheckedChange={(checked) => {
-                                            if (Array.isArray(field.value)) {
-                                                const newValue = checked
-                                                    ? [...field.value, opt.value]
-                                                    : field.value.filter((v: string) => v !== opt.value);
-                                                field.onChange(newValue);
-                                            } else {
-                                                field.onChange(checked ? opt.value : "");
-                                            }
-                                        }}
-                                    />
-                                    <FieldLabel
-                                        htmlFor={checkboxId}
-                                        className="font-normal cursor-pointer"
-                                    >
-                                        {opt.value}
-                                    </FieldLabel>
-                                </div>
-                            );
-                        })}
-                    </div>
+                    <CheckboxCase 
+                        field={field}
+                        config={config}
+                        getFieldId={getFieldId}
+                    />
                 );
             
             case 'category_selector': 
-                return (<CategorySelectCase field={field} base_id={baseId} config={config} form={form}/>);
+                return (
+                    <CategorySelectCase 
+                        field={field} 
+                        base_id={baseId} 
+                        config={config} 
+                        form={form}
+                    />
+                );
 
             case 'currency_selector':
-                return (<CurrencySelectCase field={field} base_id={baseId} form={form} config={config}/>);
-
-            case 'author': {
-
-                const value = (field.value as Author) || {};
-                
-                // Helper for the field updates
-                const updateAuthor = (key: keyof Author, val: string) => {
-                    field.onChange({
-                        ...value,
-                        [key]: val
-                    });
-                };
-            
                 return (
-                    <div className="space-y-4 p-4 border rounded-xl bg-gray-50/50">
-                        {/* Name and Surname */}
-                        <div className="space-y-2">
-                            <FieldLabel className="text-xs text-muted-foreground font-bold">Name And Surname</FieldLabel>
-                            <Input
-                                placeholder="eg. John Smith"
-                                value={value.name || ""}
-                                onChange={(e) => updateAuthor('name', e.target.value)}
-                                className="bg-white"
-                            />
-                        </div>
-            
-                        {/* Phone */}
-                        <div className="space-y-2">
-                            <FieldLabel className="text-xs text-muted-foreground font-bold">Phonenumber</FieldLabel>
-                            <Input
-                                type="tel"
-                                placeholder="e.g. +48 000 000 000"
-                                value={value.phone_number || ""}
-                                onChange={(e) => updateAuthor('phone_number', e.target.value)}
-                                className="bg-white"
-                            />
-                        </div>
-            
-                        {/* Firm Name */}
-                        <div className="space-y-2">
-                            <FieldLabel className="text-xs text-muted-foreground font-bold">Firm Name (Optional)</FieldLabel>
-                            <Input
-                                placeholder="Name of your firm"
-                                value={value.company_name || ""}
-                                onChange={(e) => updateAuthor('company_name', e.target.value)}
-                                className="bg-white"
-                            />
-                        </div>
-                    </div>
+                    <CurrencySelectCase 
+                        field={field} 
+                        base_id={baseId} 
+                        form={form} 
+                        config={config}
+                    />
+            );
+
+            case 'author':
+                return (
+                    <AuthorCase 
+                        field={field}
+                    />
                 );
-            }
 
             default:
                 return (

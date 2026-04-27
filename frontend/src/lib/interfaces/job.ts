@@ -16,5 +16,11 @@ export interface Job {
     currency: string,
     payment: number | null,
     created_at: string,
-    updated_at?: string
+    updated_at?: string,
+    user: {
+        id: number;
+        name: string;
+        phone_number: string;
+        company_name?: string;
+    };
 }

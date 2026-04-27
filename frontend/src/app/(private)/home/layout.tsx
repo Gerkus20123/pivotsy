@@ -1,7 +1,6 @@
 import BackGround from '@/components/background/page';
 import NavBar from '@/components/nav-bar';
 import { Card } from '@/components/ui/card';
-import React from 'react'
 import { ReactNode } from 'react'; 
 
 function Layout({
