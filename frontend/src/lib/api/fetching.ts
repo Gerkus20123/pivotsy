@@ -1,17 +1,21 @@
 import axiosInstance from "../axios";
 import { Job } from "../interfaces/job";
+import { JobPaginationResponse } from "../interfaces/jobPaginationResponse";
 import { JobStats } from "../interfaces/jobStats";
 
 // Fetching all jobs (objects)
 export const fetchJobs = async (
     category?: string | null, 
-    subcategory?: string | null
-): Promise<Job[]> => {
+    subcategory?: string | null,
+    page?: number
+): Promise<JobPaginationResponse> => {
     try {
         const response = await axiosInstance.get("/jobs", {
             params: { 
                 category, 
-                subcategory 
+                subcategory,
+                page,
+                per_page: 10
             }
         });
         console.log(response.data)
@@ -87,18 +91,31 @@ export const fetchFollowedJobId = async (jobId: number): Promise<number[]> => {
 };
 
 // Fetching all followed jobs (objects)
-export const fetchFollowedJobs = async ():Promise<Job[]> => {
+export const fetchFollowedJobs = async (page?: number):Promise<JobPaginationResponse> => {
+
+        const emptyResponse: JobPaginationResponse = {
+            items: [],
+            total: 0,
+            pages: 0,
+            current_page: page || 1
+        };
+
     try {
         const userId = localStorage.getItem("userId");
-        if (!userId) return [];
+        if (!userId) return emptyResponse;
 
-        const response = await axiosInstance.get(`/users/${userId}/followed_jobs`)
+        const response = await axiosInstance.get(`/users/${userId}/followed_jobs`, {
+            params: {
+                page,
+                per_page: 10
+            }
+        })
 
         console.log(response.data)
         return response.data
     } catch (error) {
         console.log("Error fetching followed jobs:", error)
-        return [];
+        return emptyResponse;
     }
 };
 
@@ -119,16 +136,29 @@ export const fetchingCurrentUserData = async ():Promise<any> => {
 };
 
 // Fetching all user created jobs (objects)
-export const fetchAllUserCreatedJobOffers = async ():Promise<Job[]> => {
+export const fetchAllUserCreatedJobOffers = async (page?: number):Promise<JobPaginationResponse> => {
+
+    const emptyResponse: JobPaginationResponse = {
+        items: [],
+        total: 0,
+        pages: 0,
+        current_page: page || 1
+    };
+
     try {
 
         const userId = localStorage.getItem("userId");
-        if (!userId) return [];
+        if (!userId) return emptyResponse;
 
-        const response = await axiosInstance.get(`/user/${userId}/jobs`);
+        const response = await axiosInstance.get(`/user/${userId}/jobs`, {
+            params: {
+                page,
+                per_page: 4
+            } 
+        });
         return response.data;
     } catch (error) {
         console.error("Error fetching jobs of a user:", error);
         throw error;
     }
-}
+};

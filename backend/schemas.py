@@ -1,4 +1,5 @@
-from marshmallow import Schema, fields, post_load
+from unicodedata import category
+from marshmallow import Schema, fields, post_load, validate
 
 class AuthorInfoSchema(Schema):
     """Schema for job author"""
@@ -72,3 +73,17 @@ class PlainJobSchema(Schema):
 class JobSchema(PlainJobSchema):
     """Schema for job with author"""
     author = fields.Nested(UserSchema(), dump_only=True)
+
+class JobPaginationSchema(Schema):
+    """Schema for the pagination"""
+    total = fields.Int(dump_only=True)
+    pages = fields.Int(dump_only=True)
+    current_page = fields.Int(dump_only=True, attribute="current_page")
+    items = fields.List(fields.Nested(JobSchema), dump_only=True)
+
+class JobQueryArgsSchema(Schema):
+    """Schemat dla agrumentów JobQuery"""
+    page = fields.Int(load_default=1, validate=validate.Range(min=1))
+    per_page = fields.Int(load_default=10, validate=validate.Range(min=1, max=100))
+    category = fields.Str()
+    subcategory = fields.Str()

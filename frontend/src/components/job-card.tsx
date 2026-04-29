@@ -1,10 +1,15 @@
 import { JobCardProps } from '@/lib/interfaces/jobCard';
 import { Bus, CalendarCheck, Handshake, Heart, MapPinIcon } from 'lucide-react';
-import Image from 'next/image';
+// import Image from 'next/image';
 import Link from 'next/link';
 import { JobCategoryOptions } from '../../constants/job_category_options';
+import { cn } from '@/lib/utils';
 
-function JobCard({ jobs, followedJobs = [], onFollow }: JobCardProps) {
+function JobCard({ 
+    jobs, 
+    followedJobs = [], 
+    onFollow 
+} : JobCardProps) {
 
     const API_BASE_URL = "http://127.0.0.1:5000";
 
@@ -25,13 +30,16 @@ function JobCard({ jobs, followedJobs = [], onFollow }: JobCardProps) {
                                 
                                 {/* Firm Logo */}
                                 <div className='flex gap-4'>
-                                    <img 
-                                        src={jobLogoImage}
-                                        width={60}
-                                        height={50}
-                                        alt='Job Image'
-                                        className='rounded-md'
-                                    />  
+                                    {job.logo && (
+                                        <img 
+                                            src={jobLogoImage}
+                                            width={60}
+                                            height={50}
+                                            alt='Job Image'
+                                            className='rounded-md'
+                                        />   
+                                    )}
+                                     
 
                                     <Link 
                                         href={`/home/search/${job.id}`}
@@ -98,7 +106,12 @@ function JobCard({ jobs, followedJobs = [], onFollow }: JobCardProps) {
                             </div>
                             
                             {/* Job Category */}
-                            <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2 w-1/2'>
+                            <div 
+                                className={cn("bg-gray-200 p-1 rounded-md font-bold", 
+                                              "text-gray-500 flex items-center gap-2",
+                                              (job.category && !job.subcategory) ? ("w-1/4") : ("w-1/2")
+                                           )}
+                            >
                                 {(() => {
 
                                     const categoryConfig = JobCategoryOptions.find(c => c.name === job.category);
@@ -108,7 +121,7 @@ function JobCard({ jobs, followedJobs = [], onFollow }: JobCardProps) {
 
                                     return IconToRender ? (
                                         <IconToRender 
-                                            size={18} 
+                                            size={20} 
                                             className="text-gray-500" 
                                         />
                                     ) : null;
@@ -125,7 +138,7 @@ function JobCard({ jobs, followedJobs = [], onFollow }: JobCardProps) {
 
                             {/* Date & Experience Requirements */}
                             <div className='flex justify-between items-center p-1'>
-                                <p>Dodano: {new Date(job.created_at).toLocaleDateString('pl-PL')}</p>
+                                <p> <strong>Added:</strong> {new Date(job.created_at).toLocaleDateString('pl-PL')}</p>
                                 
                                 <div className='bg-green-200 p-1 px-2 rounded-md font-bold text-green-700'>
                                     {job.experience_requirement}

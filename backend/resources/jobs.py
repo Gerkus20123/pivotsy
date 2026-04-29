@@ -10,7 +10,7 @@ import uuid
 
 from models.user_model import UserModel
 from models.job_model import JobModel
-from schemas import JobSchema
+from schemas import JobPaginationSchema, JobQueryArgsSchema, JobSchema
 from db import db
 
 blp = Blueprint("Jobs", "jobs", description="Jobs endpoints")
@@ -20,23 +20,33 @@ UPLOAD_FOLDER = 'static/uploads'
 class Jobs(MethodView):
     
     @blp.response(200, JobSchema(many=True))
-    def get(self):
-        """Show all jobs"""
+    @blp.arguments(JobQueryArgsSchema, location="query")
+    @blp.response(200, JobPaginationSchema)
+    def get(self, args):
+        """Show all jobs with pagination and filters"""
 
-        category = request.args.get('category')
-        subcategory = request.args.get('subcategory')
-
+        # Query initiation
         query = JobModel.query
         
         # Filter by category and subcategory
-        if category:      
-            query = query.filter(func.lower(JobModel.category) == func.lower(category))
-            
-        if subcategory:
-            query = query.filter(func.lower(JobModel.subcategory) == func.lower(subcategory))
+        if args.get('category'):
+            query = query.filter(func.lower(JobModel.category) == func.lower(args['category']))
+        
+        if args.get('subcategory'):
+            query = query.filter(func.lower(JobModel.subcategory) == func.lower(args['subcategory']))
 
-        jobs = query.all()
-        return jobs
+        pagination = query.paginate(
+            page=args['page'], 
+            per_page=args['per_page'], 
+            error_out=False
+        )
+
+        return {
+            "total": pagination.total,
+            "pages": pagination.pages,
+            "current_page": pagination.page,
+            "items": pagination.items
+        }
 
     @jwt_required()
     @blp.response(201, JobSchema)

@@ -2,12 +2,13 @@
 
 import { Button } from '@/components/ui/button';
 import JobOfferSkeleton from '@/components/ui/skeletons/jobOfferSkeleton';
-import Image from 'next/image';
-import React, { use, useEffect, useState } from 'react'
-import { HandCoins, MapPin, CalendarCheck, Bus, Handshake, Heart, Tag, BriefcaseBusiness } from "lucide-react"
+import { use, useEffect, useState } from 'react'
+import { HandCoins, MapPin, CalendarCheck, Bus, Handshake, Heart, Tag, BriefcaseBusiness, PhoneCall } from "lucide-react"
 import { Job } from '@/lib/interfaces/job';
 import { fetchJob, fetchFollowedJobId } from '@/lib/api/fetching';
 import { toggleFollowJob } from '@/lib/api/postRequests';
+import { JobCategoryOptions } from '../../../../../../constants/job_category_options';
+
  
 interface PageProps {
     params: Promise<{ job_id: string }>; 
@@ -18,6 +19,7 @@ function JobOffer({ params }: PageProps) {
     const [job, setJob] = useState<Job | null>(null);
     const [loading, setLoading] = useState(true);
     const [followedJobs, setFollowedJobs] = useState<number[]>([]);
+    const [isPhoneNumberShown, setIsPhoneNumberShown] = useState(false);
     const resolvedParams = use(params);
     const job_id = Number(resolvedParams.job_id);
     const isFollowed = followedJobs.includes(job_id);
@@ -74,65 +76,84 @@ function JobOffer({ params }: PageProps) {
             <div className="min-h-screen flex flex-col gap-4 p-5">
 
                 {/* Job Background Image */}
-                <div className="relative w-full h-[300px] md:h-[450px] overflow-hidden rounded-xl shadow-sm mb-10">
-                    <img 
-                        src={`${API_BASE_URL}${job.background_image}`}
-                        alt='Job Background Image'
-                        width={1400}
-                        height={100}
-                        className='object-cover'
-                        sizes="(max-width: 768px) 100vw, 800px"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
-                </div>
-
+                {job.background_image && (
+                    <div className="relative w-full justify-center flex h-[300px] md:h-[450px] overflow-hidden rounded-xl shadow-sm mb-10">
+                        <img 
+                            src={`${API_BASE_URL}${job.background_image}`}
+                            alt='Job Background Image'
+                            width={1400}
+                            height={100}
+                            className='object-cover w-full'
+                            sizes="(max-width: 768px) 100vw, 800px"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
+                    </div> 
+                )}
+                
                 {/* Firm Logo & Created At & Title */}
-                <div className='flex gap-4 items-center'>
+                <div className='lg:flex items-center lg:justify-between'>
 
-                    {/* Firm Logo */}
-                    {job.logo && (
-                    <img 
-                            src={`${API_BASE_URL}${job.logo}`}
-                            width={50}
-                            height={50}
-                            alt='Job Image'
-                            className='rounded-md'
-                        />   
-                    )}
-                                    
-                    <div>
-                        {/* Created at */}
+                    <div className='flex items-center gap-4 mb-3 lg:mb-0'>
+                        {/* Firm Logo */}
+                        {job.logo && (
+                            <img 
+                                src={`${API_BASE_URL}${job.logo}`}
+                                width={50}
+                                height={50}
+                                alt='Job Image'
+                                className='rounded-md'
+                            />   
+                        )}
+
+                        {/* Created at & Job Offer Title */}   
                         <div>
                             <p className="text-sm text-gray-500">
                                 Created At: {new Date(job.created_at).toLocaleDateString('pl-PL')}
                             </p>
+                            <p className="text-xl font-bold w-full">{job.short_description}</p> 
+                            <p>{job.user?.company_name}</p>
                         </div>
 
-                        {/* Job Offer Title */}
-                        <div className="text-xl font-bold w-full">
-                            <p>{job.short_description}</p>
+                        {/* Follow a job */}
+                        <div 
+                            onClick={() => handleFollowed(job_id)}
+                        >
+                            {isFollowed ? (
+                                <Heart className="cursor-pointer fill-red-500 text-red-500" size={20} />
+                            ) : (
+                                <Heart className="cursor-pointer" size={20} />
+                            )}
                         </div>
-                    </div>  
+                    </div>
 
-                    {/* Follow a job */}
-                    <div 
-                        className='flex justify-end'
-                        onClick={() => handleFollowed(job_id)}
-                    >
-                        {isFollowed ? (
-                            <Heart className="cursor-pointer fill-red-500 text-red-500" size={20} />
-                        ) : (
-                            <Heart className="cursor-pointer" size={20} />
-                        )}
+                    {/* Call & Apply to Job section */}
+                    <div className='flex gap-4 lg:w-full lg:max-w-md'>
+                        <Button
+                            className="flex-1"
+                            onClick={() => setIsPhoneNumberShown(isPhoneNumberShown ? false : true)}
+                        >
+                            {isPhoneNumberShown ? (
+                                <div className='flex gap-2 items-center'>
+                                    <PhoneCall />
+                                    {job.user?.phone_number}
+                                </div>
+                                ) : "Call"
+                            }
+                        </Button> 
+                        <Button
+                            className="flex-1"
+                        >
+                            Apply 
+                        </Button> 
                     </div>
                 </div>
 
                 <hr></hr>
                 
-                {/* Payment & Schedule */}
-                <div className='flex justify-between'>
+                {/* Payment & Experience Requirements */}
+                <div className='lg:flex justify-between'>
                     {/* Payment */}
-                    <div className='bg-yellow-200 p-1 rounded-md font-bold text-yellow-800 flex items-center gap-2'>
+                    <div className='bg-yellow-200 p-1 rounded-md font-bold text-yellow-800 flex items-center gap-2 lg:mb-0 mb-4'>
                         <HandCoins />
                         <div>               
                             <div className='flex gap-1'>
@@ -149,9 +170,9 @@ function JobOffer({ params }: PageProps) {
                 </div>
                 
                 {/* Agreement Type & Experience Requirements */}
-                <div className='flex justify-between'>
+                <div className='lg:flex justify-between'>
                     {/* Agreement Type */}
-                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
+                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2 lg:mb-0 mb-4'>
                         <Handshake />
                         <p className='text-md'>{job.agreement_type}</p> 
                     </div>
@@ -166,9 +187,9 @@ function JobOffer({ params }: PageProps) {
                 </div>
                 
                 {/* Location & Transport Availability */}
-                <div className='flex justify-between'>
+                <div className='lg:flex justify-between'>
                     {/* Location */}
-                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
+                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2 lg:mb-0 mb-4'>
                         <MapPin />
                         <p className='text-md'>{job.location}</p>
                     </div>
@@ -181,10 +202,23 @@ function JobOffer({ params }: PageProps) {
                 </div>
                 
                 {/* Category and Subcategory & Type of Work */}
-                <div className='flex justify-between'>
+                <div className='lg:flex justify-between'>
                     {/* Category and Subcategory */}
-                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
-                        <Tag />
+                    <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2 lg:mb-0 mb-4'>
+                        {(() => {
+
+                            const categoryConfig = JobCategoryOptions.find(c => c.name === job.category);
+                            const subcategoryConfig = categoryConfig?.subcategory?.find(sub => sub.name === job.subcategory)
+
+                            const IconToRender = subcategoryConfig?.icon || categoryConfig?.icon;
+
+                            return IconToRender ? (
+                                <IconToRender 
+                                    size={20} 
+                                    className="text-gray-500" 
+                                />
+                            ) : null;
+                        })()}
                         {job.subcategory ? (
                             <p className='text-md'>{job.category} {'>'} {job.subcategory}</p>
                         ) : (
@@ -226,32 +260,14 @@ function JobOffer({ params }: PageProps) {
                         <p className='text-lg font-bold'>Additional Requirements</p>
                         <p>{job.additional_requirements}</p>
                     </div>
-                )}
-                
-                {/* Job Offer Author Information */}
-                <div>
-                    <p className='text-lg font-bold'>Author</p>
-                    <p className='text-lg mb-2'>{job.user?.name}</p>
-
-                    <p className='text-lg font-bold'>Phone Number</p>
-                    <p className='text-lg mb-2'>{job.user?.phone_number}</p>
-
-                    <p className='text-lg font-bold'>Company Name</p>
-                    <p className='text-lg mb-2'>{job.user?.company_name}</p>
-                </div>
-
-                <hr></hr>
-
-                <Button
-                    className="mb-4"
-                >
-                    Apply 
-                </Button>
+                )}               
             </div> 
-
+            
+            <hr className='mb-5'></hr>
+            
             {/* Seen By Count */}
             <div className='flex justify-center items-center gap-2'>
-                <p>Seen: </p>
+                <p> <strong>Seen:</strong></p>
                 <p className='text-l'> 123 </p>
             </div>
         </div>

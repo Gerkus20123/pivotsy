@@ -1,19 +1,20 @@
 'use client'
 
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import Link from 'next/link';
 import { Job } from '@/lib/interfaces/job';
 import { fetchFollowedJobs } from '@/lib/api/fetching';
 import { toggleFollowJob } from '@/lib/api/postRequests';
 import JobCard from '@/components/job-card';
+import Pagination from '@/components/pagination';
 
 function Followed() {
 
     const [followedJobs, setFollowedJobs] = useState<Job[]>([]);
     const [follow, setFollow] = useState<number[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const handleFollowed = async (jobId: number) => {
         try {
@@ -33,10 +34,12 @@ function Followed() {
     const loadData = async () => {
         setLoading(true);
         try {
-            const data = await fetchFollowedJobs();
-            setFollowedJobs(data)
+            const data = await fetchFollowedJobs(currentPage);
+
+            setFollowedJobs(data.items);
+            setTotalPages(data.pages);
         } catch (error) {
-            console.error("Błąd podczas ładowania danych:", error);
+            console.error("An error occured while the loading the followed jobs:", error);
         } finally {
             setLoading(false);
         }
@@ -44,10 +47,10 @@ function Followed() {
 
     useEffect(() => {
         loadData();
-    }, [])
+    }, [currentPage])
 
     if (loading) return <p>Loading ...</p>
-    if (followedJobs.length === 0) return (
+    if (!followedJobs || followedJobs.length === 0) return (
         <div className='min-h-screen'>
            {/* Page Title */}
             <h1 className="text-3xl font-bold mb-8">Followed Jobs</h1> 
@@ -80,19 +83,11 @@ function Followed() {
             />
 
             {/* Pagination */}
-            <div className='flex items-center justify-center gap-5 mt-10'>
-                <Button
-                    variant="outline"
-                >
-                    <ArrowLeft />
-                </Button>
-                <p className='font-bold text-lg'> Page 1</p>
-                <Button
-                    variant="default"
-                >
-                    <ArrowRight />
-                </Button>
-            </div>
+            <Pagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(newPage: number) => setCurrentPage(newPage)}
+            />
         </div>
     )
 }

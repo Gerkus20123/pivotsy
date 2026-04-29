@@ -1,6 +1,7 @@
 'use client'
 import FieldForm from '@/components/fieldform';
 import JobCard from '@/components/job-card';
+import Pagination from '@/components/pagination';
 import CustomScroll from '@/components/scrollbar';
 import { Button } from '@/components/ui/button';
 import { fetchAllUserCreatedJobOffers, fetchingCurrentUserData } from '@/lib/api/fetching';
@@ -8,9 +9,8 @@ import { editUserData } from '@/lib/api/postRequests';
 import { FieldConfig } from '@/lib/interfaces/fields';
 import { Job } from '@/lib/interfaces/job';
 import { User } from '@/lib/interfaces/user';
-import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import z from 'zod';
 
@@ -25,6 +25,8 @@ function Account() {
   const [userData, setUserData] = useState<User>();
   const [isEdit, setIsEdit] = useState(false);
   const [userCreatedJobs, setUserCreatedJobs] = useState<Job[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const formSchema = z.object({
       name: z.string().min(2, "Name is required"),
@@ -51,14 +53,17 @@ function Account() {
     { name: 'company_name', label: 'Company', type: 'text' }
   ], []);
 
+  // Loading the account info
   const loadUser = async () => {
-   const data = await fetchingCurrentUserData()
-   setUserData(data)
+    const data = await fetchingCurrentUserData()
+    setUserData(data)
   };
 
-  const loadUserJobOffers = async () => {
-    const data = await fetchAllUserCreatedJobOffers();
-    setUserCreatedJobs(data)
+  // Loading the user created job offers
+  const loadUserJobOffers = async (page: number) => {
+    const data = await fetchAllUserCreatedJobOffers(page);
+    setUserCreatedJobs(data.items)
+    setTotalPages(data.pages);
   }
 
   useEffect(() => {
@@ -72,9 +77,12 @@ function Account() {
   }, [userData, reset]);
 
   useEffect(() => {
-    loadUser()
-    loadUserJobOffers()
-  }, [])
+    loadUser();
+  }, []);
+
+  useEffect(() => {
+    loadUserJobOffers(currentPage)
+  }, [currentPage])
 
   const editBasicInformation = async (data: FormValues) => {
     try {
@@ -176,7 +184,7 @@ function Account() {
 
                 <div className='flex gap-2'>
                   <CustomScroll
-                    className='w-full rounded-xl max-h-[240px]'
+                    className='w-full rounded-xl max-h-[245px]'
                     childrenType='mr-10'
                   >
                       {/* Messsage Cards */}
@@ -197,7 +205,7 @@ function Account() {
                 </div>
                 
                 <Button>
-                    Show
+                    Show More
                 </Button>
                 
               </div>
@@ -212,6 +220,11 @@ function Account() {
                 jobs={userCreatedJobs}
               />
               
+              <Pagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(newPage: number) => setCurrentPage(newPage)}
+              />
             </div>
     </div>
   )

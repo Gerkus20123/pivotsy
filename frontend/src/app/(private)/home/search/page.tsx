@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import axiosInstance from '@/lib/axios';
 import { fetchFollowedJobIds, fetchJobs, fetchJobsCatSubCat } from '@/lib/api/fetching';
@@ -10,6 +10,7 @@ import JobCard from '@/components/job-card';
 import { JobCategoryOptions } from '../../../../../constants/job_category_options';
 import { cn } from '@/lib/utils';
 import { JobStats } from '@/lib/interfaces/jobStats';
+import Pagination from '@/components/pagination';
 
 function SearchOffers() {
 
@@ -22,6 +23,8 @@ function SearchOffers() {
         subcategories: {}
     });
     const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const handleFollowed = async (jobId: number) => {
         try {
@@ -41,15 +44,15 @@ function SearchOffers() {
         }
     };
 
-
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [jobsData, followedIds] = await Promise.all([
-                    fetchJobs(selectedCategory, selectedSubcategory),
+                const [jobsResponse, followedIds] = await Promise.all([
+                    fetchJobs(selectedCategory, selectedSubcategory, currentPage),
                     fetchFollowedJobIds()
                 ]);
-                setJobs(jobsData);
+                setJobs(jobsResponse.items);
+                setTotalPages(jobsResponse.pages);
                 setFollowedJobs(followedIds);
             } catch (error) {
                 console.error("An error occured while loading the job data:", error);
@@ -58,7 +61,7 @@ function SearchOffers() {
         };
 
         loadData();
-    }, [selectedCategory, selectedSubcategory])
+    }, [selectedCategory, selectedSubcategory, currentPage])
 
     useEffect(() => {
         const loadStats = async () => {
@@ -122,6 +125,7 @@ function SearchOffers() {
                                         onClick={() => {
                                             setSelectedCategory(isCatActive ? null : cat.name);
                                             setSelectedSubcategory(null);
+                                            setCurrentPage(1)
                                         }}
                                     >
                                         <IconComponent 
@@ -137,9 +141,17 @@ function SearchOffers() {
                     )}
                     
                     {/* Subcategory */}
-                    {selectedCategory && (
-                        <div className="mt-6 animate-in fade-in slide-in-from-top-2">
-                            <h3 className="text-sm font-semibold text-slate-600 mb-3">Narrow down your search:</h3>
+                    {selectedCategory && (() => {
+
+                        const currentCat = JobCategoryOptions.find(c => c.name === selectedCategory);
+                        
+                        if (!currentCat?.subcategory || currentCat.subcategory.length === 0) {
+                            return null;
+                        }
+
+                        return (
+                            <div className="mt-6 animate-in fade-in slide-in-from-top-2">
+                            <h3 className="text-sm font-semibold text-slate-600 mb-3">Narrow down your search</h3>
                             <div className="flex flex-wrap gap-2">
                                 {JobCategoryOptions.find(c => c.name === selectedCategory)?.subcategory?.map((subcat) => {
 
@@ -174,7 +186,9 @@ function SearchOffers() {
                                 })}    
                             </div>           
                         </div>
-                    )}
+                        );
+                        
+                    })()}
 
                 </div>  
             </div>
@@ -187,19 +201,12 @@ function SearchOffers() {
             /> 
 
             {/* Pagination */}
-            <div className='flex items-center justify-center gap-5 mt-10'>
-                <Button
-                    variant="outline"
-                >
-                    <ArrowLeft />
-                </Button>
-                <p className='font-bold text-lg'> Page 1</p>
-                <Button
-                    variant="default"
-                >
-                    <ArrowRight />
-                </Button>
-            </div>
+            <Pagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(newPage: number) => setCurrentPage(newPage)}
+            />
+            
         </div>
     )
 }

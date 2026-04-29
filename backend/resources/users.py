@@ -9,10 +9,10 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 from sqlalchemy.exc import SQLAlchemyError
-
+from models.job_model import JobModel
 from blocklist import BLOCKLIST
 from models.user_model import UserModel
-from schemas import JobSchema, UserSchema, UserLoginSchema, UserUpdateSchema
+from schemas import JobPaginationSchema, JobQueryArgsSchema, JobSchema, UserSchema, UserLoginSchema, UserUpdateSchema
 from db import db
 
 blp = Blueprint("Users", "users", description="Users endpoints")
@@ -126,11 +126,28 @@ class TokenRefresh(MethodView):
 @blp.route("/users/<int:user_id>/followed_jobs")
 class UserFollowedJobs(MethodView):
 
-    @blp.response(200, JobSchema(many=True))
-    def get(self, user_id):
+    @blp.arguments(JobQueryArgsSchema, location="query")
+    @blp.response(200, JobPaginationSchema)
+    def get(self, args, user_id):
         """Get all followed jobs for a specific user"""
-        user = UserModel.query.get_or_404(user_id)
-        return user.followed_jobs
+
+        query = JobModel.query.join(
+            JobModel.followed_by
+        ).filter(UserModel.id == user_id)
+
+        # Pagination
+        pagination = query.paginate(
+            page=args.get("page", 1),
+            per_page=args.get("per_page", 10),
+            error_out=False
+        )
+
+        return {
+            "total": pagination.total,
+            "pages": pagination.pages,
+            "current_page": pagination.page,
+            "items": pagination.items
+        }
 
 @blp.route("/users/<int:user_id>/followed_jobs/<int:job_id>")
 class UserFollowedJob(MethodView):
@@ -153,9 +170,24 @@ class UserJobs(MethodView):
 
     @jwt_required()
 
-    @blp.response(200, JobSchema(many=True))
-    def get(self, user_id):
-        """Get all job offers of a user"""
+    @blp.arguments(JobQueryArgsSchema, location="query")
+    @blp.response(200, JobPaginationSchema)
+    def get(self, args, user_id):
+        """Get user's all created job offers"""
 
-        user = UserModel.query.get_or_404(user_id)
-        return user.jobs
+        query = JobModel.query.filter(JobModel.author_id == user_id)
+        query = query.order_by(JobModel.created_at.desc())
+
+        # Pagination
+        pagination = query.paginate(
+            page=args.get("page", 1),
+            per_page=args.get("per_page", 10),
+            error_out=False
+        )
+
+        return {
+            "total": pagination.total,
+            "pages": pagination.pages,
+            "current_page": pagination.page,
+            "items": pagination.items
+        }
