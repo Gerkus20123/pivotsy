@@ -22,6 +22,8 @@ function JobOffer({ params }: PageProps) {
     const job_id = Number(resolvedParams.job_id);
     const isFollowed = followedJobs.includes(job_id);
 
+    const API_BASE_URL = "http://127.0.0.1:5000";
+
     const handleFollowed = async (jobId: number) => {
         try {
 
@@ -73,13 +75,13 @@ function JobOffer({ params }: PageProps) {
 
                 {/* Job Background Image */}
                 <div className="relative w-full h-[300px] md:h-[450px] overflow-hidden rounded-xl shadow-sm mb-10">
-                    <Image 
-                        src="/example-image.png" 
+                    <img 
+                        src={`${API_BASE_URL}${job.background_image}`}
                         alt='Job Background Image'
-                        fill
+                        width={1400}
+                        height={100}
                         className='object-cover'
                         sizes="(max-width: 768px) 100vw, 800px"
-                        priority
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
                 </div>
@@ -88,9 +90,9 @@ function JobOffer({ params }: PageProps) {
                 <div className='flex gap-4 items-center'>
 
                     {/* Firm Logo */}
-                    {job.image && (
-                    <Image 
-                            src={job.image}
+                    {job.logo && (
+                    <img 
+                            src={`${API_BASE_URL}${job.logo}`}
                             width={50}
                             height={50}
                             alt='Job Image'
@@ -203,9 +205,19 @@ function JobOffer({ params }: PageProps) {
                 <hr></hr>
 
                 {/* Long Description */}
-                <div className="space-y-2 text-lg">
+                <div className="space-y-5 text-lg">
                     <p className='text-lg font-bold'>Description</p>
-                    <p>{job.long_description}</p>
+                    <div 
+                        className="prose prose-lg max-w-none 
+                        [&_ul]:list-disc 
+                        [&_ul]:ml-10
+                        [&_ul]:my-2
+                        [&_strong]:font-bold 
+                        [&_p]:text-sm
+                        [&_p]:my-2
+                        "
+                        dangerouslySetInnerHTML={{ __html: job.long_description || "" }} 
+                    />
                 </div>
                 
                 {/* Additional Requirements */}

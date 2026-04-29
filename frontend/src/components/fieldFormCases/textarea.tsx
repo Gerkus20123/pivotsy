@@ -1,18 +1,26 @@
 'use client'
 
-import React from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Bold, Italic, Underline as UnderlineIcon, List, ListOrdered } from 'lucide-react';
+import { Bold, Italic, Underline as UnderlineIcon, List } from 'lucide-react';
 import { FieldConfig } from '@/lib/interfaces/fields';
 import UnderlineExtension from '@tiptap/extension-underline';
 
-function MenuButton({ onClick, active, icon }: { onClick: () => void, active: boolean, icon: React.ReactNode }) {
+function MenuButton({ 
+    onClick, 
+    active, 
+    icon 
+} : { 
+    onClick: () => void, 
+    active: boolean, 
+    icon: ReactNode 
+    }) {
     return (
         <button
             type="button"
             onClick={onClick}
-            className={`p-2 rounded-md transition-colors ${
+            className={`p-2 rounded-md transition-colors cursor-pointer ${
                 active ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200 text-gray-600'
             }`}
         >
@@ -47,8 +55,8 @@ function TextArea({
             },
         })
 
-        // Jeśli formularz zmienia wartość zewnętrznie (np. reset), aktualizujemy edytor
-        React.useEffect(() => {
+        // If the form changes it value externally, update the editor
+        useEffect(() => {
             if (editor && value !== editor.getHTML()) {
                 editor.commands.setContent(value);
             }
@@ -77,7 +85,9 @@ function TextArea({
                         active={editor.isActive('underline')}
                         icon={<UnderlineIcon size={16} />}
                     />
-                    <div className="w-[1px] h-6 bg-gray-300 mx-1 self-center" />
+
+                    <div className="w-px h-6 bg-gray-300 mx-1 self-center" />
+
                     <MenuButton 
                         onClick={() => editor.chain().focus().toggleBulletList().run()}
                         active={editor.isActive('bulletList')}
@@ -93,7 +103,6 @@ function TextArea({
                         [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4"
                     id={base_id}
                     placeholder={config.placeholder}
-                    {...field}
                 />
             </div>
           )

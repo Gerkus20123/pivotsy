@@ -1,7 +1,7 @@
 export interface Job {
     id: number,
-    image?: string,
-    job_logo?: string,
+    logo?: string,
+    background_image?: string,
     short_description: string,
     long_description?: string,
     category: string,

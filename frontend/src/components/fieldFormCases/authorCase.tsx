@@ -36,7 +36,7 @@ function AuthorCase({
 
             {/* Phone */}
             <div className="space-y-2">
-                <FieldLabel className="text-xs text-muted-foreground font-bold">Phonenumber</FieldLabel>
+                <FieldLabel className="text-xs text-muted-foreground font-bold">Phone Number</FieldLabel>
                 <div className='mx-2'>
                     <Input
                         type="tel"

@@ -8,16 +8,16 @@ import {
     FieldLabel,
 } from "@/components/ui/field"
 
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from '@/components/ui/input';
 import { Controller, ControllerRenderProps, FieldValues, Path } from 'react-hook-form';
-import { Author, FieldConfig, FieldFormProps } from '@/lib/interfaces/fields'
+import { FieldConfig, FieldFormProps } from '@/lib/interfaces/fields'
 import SelectCase from './fieldFormCases/select'
 import CategorySelectCase from './fieldFormCases/categorySelectCase';
 import CurrencySelectCase from './fieldFormCases/currencySelectCase';
 import TextArea from './fieldFormCases/textarea';
 import AuthorCase from './fieldFormCases/authorCase';
 import CheckboxCase from './fieldFormCases/checkboxCase';
+import ImageUploadCase from './fieldFormCases/imageUploaderCase';
 
 export type FieldTypes = 
     | 'text' 
@@ -31,7 +31,8 @@ export type FieldTypes =
     | 'url'
     | 'category_selector'
     | 'currency_selector'
-    | 'author';
+    | 'author'
+    | 'image_uploader';;
 
 function FieldForm<T extends FieldValues>(
     { 
@@ -126,6 +127,14 @@ function FieldForm<T extends FieldValues>(
                         field={field}
                     />
                 );
+            
+            case 'image_uploader':
+                return (
+                    <ImageUploadCase 
+                        field={field}
+                        config={config}
+                    />
+                )
 
             default:
                 return (
@@ -145,7 +154,6 @@ function FieldForm<T extends FieldValues>(
         <form 
             id={formId}
             onSubmit={form.handleSubmit(onSubmit)}
-            className='flex flex-col items-center justify-center'
         >
             <FieldGroup>
                 {fieldsConfig.map((config) => (

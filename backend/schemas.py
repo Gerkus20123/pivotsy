@@ -1,6 +1,7 @@
-from marshmallow import EXCLUDE, Schema, fields, post_load
+from marshmallow import Schema, fields, post_load
 
 class AuthorInfoSchema(Schema):
+    """Schema for job author"""
     name = fields.Str(required=True)
     phone_number = fields.Str(required=True)
     company_name = fields.Str(allow_none=True)
@@ -16,16 +17,19 @@ class UserSchema(Schema):
     company_name = fields.Str()
 
 class UserLoginSchema(Schema):
+    """Schema for a user (login)"""
     name = fields.Str(required=True)
     password = fields.Str(required=True, load_only=True)
 
 class UserUpdateSchema(Schema):
+    """Schema for updating the user basic information"""
     name = fields.Str()
     email = fields.Email()
     phone_number = fields.Str()
     company_name = fields.Str()
 
 class UserForJobSchema(Schema):
+    """Schema for job author basic info when creating a new job"""
     id = fields.Int(dump_only=True)
     name = fields.Str(dump_only=True)
     phone_number = fields.Str(dump_only=True)
@@ -39,7 +43,8 @@ class PlainJobSchema(Schema):
     subcategory = fields.Str(required=True)
     payment = fields.Int()
     currency = fields.Str()
-    image = fields.Str(required=False)
+    logo = fields.Str(required=False)
+    background_image = fields.Str(required=False)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
     agreement_type = fields.Str()
@@ -65,4 +70,5 @@ class PlainJobSchema(Schema):
         return data
 
 class JobSchema(PlainJobSchema):
+    """Schema for job with author"""
     author = fields.Nested(UserSchema(), dump_only=True)

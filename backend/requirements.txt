@@ -8,3 +8,4 @@ flask-jwt-extended
 passlib
 cryptography
 flask-cors
+flask_migrate

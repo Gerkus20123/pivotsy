@@ -4,6 +4,7 @@ from flask import Flask, jsonify
 from flask_smorest import Api 
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_migrate import Migrate
 
 from blocklist import BLOCKLIST
 from resources.users import blp as Users
@@ -12,7 +13,7 @@ from db import db
 import models
 
 # App initialization
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 CORS(app, 
      resources={r"/*": {"origins": ["http://localhost:3000"]}},
@@ -63,8 +64,7 @@ def token_not_fresh_callback(jwt_header, jwt_payload):
 
 # DB initialization
 db.init_app(app)
-with app.app_context():
-    db.create_all()
+migrate = Migrate(app, db)
 
 # Flask Smorest API initialization
 api = Api(app)   

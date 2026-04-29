@@ -1,10 +1,19 @@
 import axiosInstance from "../axios";
 import { Job } from "../interfaces/job";
+import { JobStats } from "../interfaces/jobStats";
 
 // Fetching all jobs (objects)
-export const fetchJobs = async (): Promise<Job[]> => {
+export const fetchJobs = async (
+    category?: string | null, 
+    subcategory?: string | null
+): Promise<Job[]> => {
     try {
-        const response = await axiosInstance.get("/jobs");
+        const response = await axiosInstance.get("/jobs", {
+            params: { 
+                category, 
+                subcategory 
+            }
+        });
         console.log(response.data)
         return response.data;
     } catch (error) {
@@ -12,6 +21,18 @@ export const fetchJobs = async (): Promise<Job[]> => {
         throw error
     }
 };
+
+// Fetching all jobs of a certain category or subcategory (objects)
+export const fetchJobsCatSubCat = async (): Promise<JobStats> => {
+    try {
+        const response = await axiosInstance.get("/jobs/stats")
+        console.log(response.data)
+        return response.data
+    } catch (error) {
+        console.log("Error fetching jobs:", error);
+        return { categories: {}, subcategories: {} };
+    }
+}
 
 // Fetching a job (object)
 export const fetchJob = async (jobId: number): Promise<Job> => {

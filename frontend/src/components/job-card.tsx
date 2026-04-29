@@ -2,14 +2,18 @@ import { JobCardProps } from '@/lib/interfaces/jobCard';
 import { Bus, CalendarCheck, Handshake, Heart, MapPinIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { JobCategoryOptions } from '../../constants/job_category_options';
 
 function JobCard({ jobs, followedJobs = [], onFollow }: JobCardProps) {
+
+    const API_BASE_URL = "http://127.0.0.1:5000";
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-10">
                 {jobs.map((job, index) => {
 
                     const isFollowed = followedJobs?.includes(job.id);
+                    const jobLogoImage = job.logo ? (`${API_BASE_URL}${job.logo}`) : "/default-job-image.png"
 
                     return (
                         <div 
@@ -21,8 +25,8 @@ function JobCard({ jobs, followedJobs = [], onFollow }: JobCardProps) {
                                 
                                 {/* Firm Logo */}
                                 <div className='flex gap-4'>
-                                    <Image 
-                                        src={"/default-job-image.png"}
+                                    <img 
+                                        src={jobLogoImage}
                                         width={60}
                                         height={50}
                                         alt='Job Image'
@@ -81,13 +85,40 @@ function JobCard({ jobs, followedJobs = [], onFollow }: JobCardProps) {
                                     />
                                     {job.schedule}
                                 </div> 
+                                
+                                {job.location && (
+                                   <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
+                                        <MapPinIcon 
+                                            size={20}
+                                        />
+                                        <p>{job.location}</p>
+                                    </div> 
+                                )}
+                                
+                            </div>
+                            
+                            {/* Job Category */}
+                            <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2 w-1/2'>
+                                {(() => {
 
-                                <div className='bg-gray-200 p-1 rounded-md font-bold text-gray-500 flex items-center gap-2'>
-                                    <MapPinIcon 
-                                        size={20}
-                                    />
-                                    <p>{job.location}</p>
-                                </div>
+                                    const categoryConfig = JobCategoryOptions.find(c => c.name === job.category);
+                                    const subcategoryConfig = categoryConfig?.subcategory?.find(sub => sub.name === job.subcategory)
+
+                                    const IconToRender = subcategoryConfig?.icon || categoryConfig?.icon;
+
+                                    return IconToRender ? (
+                                        <IconToRender 
+                                            size={18} 
+                                            className="text-gray-500" 
+                                        />
+                                    ) : null;
+                                })()}
+                                {job.subcategory ? (
+                                    <p>{job.category} {">"} {job.subcategory}</p>
+                                ) : (
+                                    <p>{job.category}</p>
+                                )}
+                                
                             </div>
 
                             <hr className='my-1'></hr>

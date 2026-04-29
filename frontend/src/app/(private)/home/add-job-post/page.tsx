@@ -21,19 +21,20 @@ import { createAJob } from '@/lib/api/postRequests';
 
 const formSchema = z.object({
   short_description: z.string().min(1, "Title is required"),
-  image: z.string().optional(),
   long_description: z.string().min(10, "Description is too short"),
-  currency: z.string(),
-  payment: z.number().int().positive(),
+  background_image: z.any().optional(),
+  logo: z.any().optional(),
   agreement_type: z.array(z.string()).min(1, "Choose at least one work agreement"),
-  location: z.string(),
   experience_requirement: z.string().min(1, "Choose the work experience criteria"),
   transport_availability: z.array(z.string()).min(1, "Choose at least one transport availability option"),
   schedule: z.array(z.string()).min(1, "Choose at least one work schedule"),
-  category: z.string(),
-  subcategory: z.string().optional(),
-  additional_requirements: z.array(z.string()),
   type_of_work: z.array(z.string()),
+  category: z.string(),
+  location: z.string(),
+  subcategory: z.string().optional(),
+  payment: z.number().int().positive(),  
+  currency: z.string(),
+  additional_requirements: z.array(z.string()),
   author_info: z.object({
     name: z.string().min(2, "Name is required"),
     phone_number: z.string().min(9, "Write the correct phonenumber"),
@@ -51,19 +52,20 @@ function AddJobPost() {
     resolver: zodResolver(formSchema),
     defaultValues: { 
       short_description: "", 
-      image: "", 
-      long_description: "", 
-      currency: "",
-      payment: 1,
+      long_description: "",
+      background_image: "",
+      logo: "", 
       agreement_type: [],
-      location: "",
       experience_requirement: "",
       transport_availability: [],
       schedule: [],
+      type_of_work: [],
+      location: "",
       category: "",
       subcategory: "",
+      payment: 1,
+      currency: "",
       additional_requirements: [],
-      type_of_work: [],
       author_info: {
         name: userData?.name || "",
         phone_number: userData?.phone_number || "",
@@ -73,19 +75,45 @@ function AddJobPost() {
   });
 
   const addJobConfig: FieldConfig<FormValues>[] = useMemo(() => [
-    { name: 'short_description', label: 'Job Title', type: 'text', placeholder: 'Job Title...'},
     { name: 'category', label: 'Category', type: 'category_selector', categories: JobCategoryOptions},
-    { name: 'long_description', label: 'Description', type: 'textarea', placeholder: 'Description...'},
-    { name: 'agreement_type', label: 'Agreement type', type: 'checkbox', options: AgreementTypeOptions},
-    { name: 'schedule', label: 'Schedule', type: 'checkbox', options: ScheduleOptions},
-    { name: 'experience_requirement', label: 'Experience Requirement', type: 'checkbox', options: WorkExperienceOptions},
-    { name: 'transport_availability', label: 'Transport Availability', type: 'checkbox', options: TransportAvailabilityOptions},
-    { name: 'payment', label: 'Payment', type: 'number'},
     { name: 'location', label: 'Job Location', type: 'text'},
+    { name: 'payment', label: 'Payment', type: 'number'},    
     { name: 'currency', label: 'Currency', type: 'currency_selector', currency: CurrencyOptionsData},
-    { name: 'additional_requirements', label: 'Additional Requirements', type: 'checkbox', options: AdditionalRequirements},
-    { name: 'type_of_work', label: 'Type Of Work', type: 'checkbox', options: TypeOfWorkOptions},
     { name: 'author_info', label: 'Author Data', type: 'author'}
+  ], []);
+
+  const jobTitleAndDescription: FieldConfig<FormValues>[] = useMemo(() => [
+    { name: 'short_description', label: 'Job Title', type: 'text', placeholder: 'Job Title...'},
+    { name: 'long_description', label: 'Description', type: 'textarea', placeholder: 'Description...'},
+  ], []);
+
+  const addBackgroundImage: FieldConfig<FormValues>[] = useMemo(() => [
+    { name: 'background_image', label: 'Background Image', type: 'image_uploader'},
+    { name: 'logo', label: 'Job/Firm Logo', type: 'image_uploader'},
+  ], []);
+
+  const aggreement_type: FieldConfig<FormValues>[] = useMemo(() => [
+    { name: 'agreement_type', label: 'Agreement type', type: 'checkbox', options: AgreementTypeOptions},
+  ], []);
+
+  const schedule: FieldConfig<FormValues>[] = useMemo(() => [
+    { name: 'schedule', label: 'Schedule', type: 'checkbox', options: ScheduleOptions},
+  ], []);
+
+  const experience_requirement: FieldConfig<FormValues>[] = useMemo(() => [
+    { name: 'experience_requirement', label: 'Experience Requirement', type: 'checkbox', options: WorkExperienceOptions},
+  ], []);
+
+  const transport_availability: FieldConfig<FormValues>[] = useMemo(() => [
+    { name: 'transport_availability', label: 'Transport Availability', type: 'checkbox', options: TransportAvailabilityOptions},
+  ], []);
+
+  const additional_requirements: FieldConfig<FormValues>[] = useMemo(() => [
+    { name: 'additional_requirements', label: 'Additional Requirements', type: 'checkbox', options: AdditionalRequirements},
+  ], []);
+
+  const type_of_work: FieldConfig<FormValues>[] = useMemo(() => [
+    { name: 'type_of_work', label: 'Type Of Work', type: 'checkbox', options: TypeOfWorkOptions},
   ], []);
 
   const [loading, setLoading] = useState(false);
@@ -93,19 +121,28 @@ function AddJobPost() {
 
   const onSubmit = async (data: FormValues) => {
 
+    const formData = new FormData();
+
+    Object.keys(data).forEach(key => {
+      if (key !== 'logo' && key !== 'background_image' && key !== 'author_info') {
+          formData.append(key, (data as any)[key]);
+      }
+    });
+
+    if (data.logo instanceof File) formData.append('logo', data.logo);
+    if (data.background_image instanceof File) formData.append('background_image', data.background_image);
+
     // Transforming the data to fit db (as stirings .. , ..)
-    const formattedData = {
-      ...data,
-      agreement_type: data.agreement_type.join(", "),
-      schedule: data.schedule.join(", "),
-      transport_availability: data.transport_availability.join(", "),
-      additional_requirements: data.additional_requirements.join(", "),
-      type_of_work: data.type_of_work.join(", "),
-    };
+    formData.append('author_info', JSON.stringify(data.author_info));
+    formData.append('agreement_type', data.agreement_type.join(", "));
+    formData.append('schedule', data.schedule.join(", "));
+    formData.append('transport_availability', data.transport_availability.join(", "));
+    formData.append('type_of_work', data.type_of_work.join(", "));
+    formData.append('additional_requirements', data.additional_requirements.join(", "));
 
     try {
       setLoading(true);
-      await createAJob(formattedData);
+      await createAJob(formData);
     } catch (error: any) {
       console.error(error);
       const msg = error.response?.data?.message || "An unexpected error occurred while creating a job.";
@@ -157,7 +194,81 @@ function AddJobPost() {
                   <h2> The more the details, the better</h2>
               </div>
               
+              {/* Job Title and Description */}
               <div className='mt-10'>
+                <FieldForm 
+                  form={form} 
+                  formId="add-job-form" 
+                  fieldsConfig={jobTitleAndDescription}
+                  onSubmit={onSubmit}
+                />         
+              </div>
+
+
+              <div className='mt-5'>
+                <FieldForm 
+                  form={form} 
+                  formId="add-job-form" 
+                  fieldsConfig={addBackgroundImage}
+                  onSubmit={onSubmit}
+                />
+              </div>
+
+              {/* Fields with checkboxes: Agreement Type, Schedule, Experience Requirements, Transport 
+              Availability, Additional Requirements, Type of Work */}
+              <div className='mt-5 grid lg:grid-cols-6 grid-cols-1 gap-5'>
+                
+                {/* Agreement Type */}
+                <FieldForm 
+                  form={form} 
+                  formId="add-job-form" 
+                  fieldsConfig={aggreement_type}
+                  onSubmit={onSubmit}
+                />
+
+                {/* Schedule */}
+                <FieldForm 
+                  form={form} 
+                  formId="add-job-form" 
+                  fieldsConfig={schedule}
+                  onSubmit={onSubmit}
+                />
+
+                {/* Experience Requirements */}
+                <FieldForm 
+                  form={form} 
+                  formId="add-job-form" 
+                  fieldsConfig={experience_requirement}
+                  onSubmit={onSubmit}
+                />
+                
+                {/* Transport Availability */}
+                <FieldForm 
+                  form={form} 
+                  formId="add-job-form" 
+                  fieldsConfig={transport_availability}
+                  onSubmit={onSubmit}
+                />
+
+                {/* Additional Requirements */}
+                <FieldForm 
+                  form={form} 
+                  formId="add-job-form" 
+                  fieldsConfig={additional_requirements}
+                  onSubmit={onSubmit}
+                />
+
+                {/* Type of Work */}
+                <FieldForm 
+                  form={form} 
+                  formId="add-job-form" 
+                  fieldsConfig={type_of_work}
+                  onSubmit={onSubmit}
+                />
+              </div>
+              
+              {/* Fields: Category, Location, Payment, Currency, Author Info */}
+              <div className='mt-5'>
                 <FieldForm 
                   form={form} 
                   formId="add-job-form" 
@@ -166,6 +277,30 @@ function AddJobPost() {
                 />
               </div>
               
+                {/* Form Errors */}
+                <div className="relative w-full h-[180px] mt-10"> 
+                  <div className={cn(
+                    "absolute inset-0 transition-all duration-300 transform",
+                    Object.keys(form.formState.errors).length > 0 
+                      ? "opacity-100 scale-100 translate-y-0" 
+                      : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+                  )}>
+                    <div className="bg-red-50 p-3 rounded-xl border border-red-100 shadow-sm">
+                      <p className="text-red-600 font-bold text-[10px] uppercase tracking-wider mb-1">
+                        Validation Errors
+                      </p>
+                      <ul className="space-y-1">
+                        {Object.values(form.formState.errors).map((error, index) => (
+                          <li key={index} className="text-red-500 text-xs flex items-center gap-1">
+                            <span className="w-1 h-1 bg-red-400 rounded-full shrink-0" />
+                            {error?.message?.toString()}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
               <Button 
                 type="submit" 
                 form="add-job-form"
@@ -188,29 +323,7 @@ function AddJobPost() {
                 </div>
               )}
 
-              {/* Form Errors */}
-              <div className="relative w-full h-[100px]"> 
-                <div className={cn(
-                  "absolute inset-0 transition-all duration-300 transform",
-                  Object.keys(form.formState.errors).length > 0 
-                    ? "opacity-100 scale-100 translate-y-0" 
-                    : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
-                )}>
-                  <div className="bg-red-50 p-3 rounded-xl border border-red-100 shadow-sm">
-                    <p className="text-red-600 font-bold text-[10px] uppercase tracking-wider mb-1">
-                      Validation Errors
-                    </p>
-                    <ul className="space-y-1">
-                      {Object.values(form.formState.errors).map((error, index) => (
-                        <li key={index} className="text-red-500 text-xs flex items-center gap-1">
-                          <span className="w-1 h-1 bg-red-400 rounded-full shrink-0" />
-                          {error?.message?.toString()}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
+              
             </div>
     </div>
   )
