@@ -3,26 +3,37 @@ import { Job } from "../interfaces/job";
 import { JobPaginationResponse } from "../interfaces/jobPaginationResponse";
 import { JobStats } from "../interfaces/jobStats";
 
+
 // Fetching all jobs (objects)
 export const fetchJobs = async (
     category?: string | null, 
     subcategory?: string | null,
     page?: number
-): Promise<JobPaginationResponse> => {
+) : Promise<JobPaginationResponse> => {
     try {
-        const response = await axiosInstance.get("/jobs", {
-            params: { 
-                category, 
-                subcategory,
-                page,
-                per_page: 10
-            }
+        const queryParams = new URLSearchParams();
+
+        if (category) queryParams.append('category', category);
+        if (subcategory) queryParams.append('subcategory', subcategory);
+        if (page) queryParams.append('page', page.toString());
+        queryParams.append('per_page', '10');
+
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+        const url = `${baseUrl}/jobs?${queryParams.toString()}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
         });
-        console.log(response.data)
-        return response.data;
+
+        if (!response.ok) {
+            throw new Error(`A server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
     } catch (error) {
         console.log("Error fetching jobs:", error);
-        throw error
+        throw error;
     }
 };
 
@@ -36,7 +47,7 @@ export const fetchJobsCatSubCat = async (): Promise<JobStats> => {
         console.log("Error fetching jobs:", error);
         return { categories: {}, subcategories: {} };
     }
-}
+};
 
 // Fetching a job (object)
 export const fetchJob = async (jobId: number): Promise<Job> => {
@@ -50,16 +61,33 @@ export const fetchJob = async (jobId: number): Promise<Job> => {
 };
 
 // Fetching ids of all followed jobs (numbers)
-export const fetchFollowedJobIds = async (): Promise<number[]> => {
+export const fetchFollowedJobIds = async () : Promise<number[]> => {
     try {
 
-        // Loading userId from localStorage
         const userId = localStorage.getItem("userId");
         if (!userId) return [];
 
-        const response = await axiosInstance.get(`/users/${userId}/followed_jobs`)
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+        const url = `${baseUrl}/users/${userId}/followed_jobs`;
 
-        return response.data.map((job: Job) => job.id);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (Array.isArray(data.items)) {
+            return data.items.map((job: any) => job.id);
+        }
+
+        return [];
+
     } catch (error) {
         console.log("Error fetching ids of followed jobs:", error)
         return [];
@@ -150,7 +178,7 @@ export const fetchAllUserCreatedJobOffers = async (page?: number):Promise<JobPag
         const userId = localStorage.getItem("userId");
         if (!userId) return emptyResponse;
 
-        const response = await axiosInstance.get(`/user/${userId}/jobs`, {
+        const response = await axiosInstance.get(`/users/${userId}/jobs`, {
             params: {
                 page,
                 per_page: 4

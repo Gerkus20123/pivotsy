@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { fetchingCurrentUserData } from '@/lib/api/fetching';
 import { cn } from '@/lib/utils';
 import { createAJob } from '@/lib/api/postRequests';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   short_description: z.string().min(1, "Title is required"),
@@ -74,47 +75,26 @@ function AddJobPost() {
     },
   });
 
-  const addJobConfig: FieldConfig<FormValues>[] = useMemo(() => [
+  const allFieldsConfig: FieldConfig<FormValues>[] = useMemo(() => [
     { name: 'category', label: 'Category', type: 'category_selector', categories: JobCategoryOptions},
     { name: 'location', label: 'Job Location', type: 'text'},
     { name: 'payment', label: 'Payment', type: 'number'},    
     { name: 'currency', label: 'Currency', type: 'currency_selector', currency: CurrencyOptionsData},
-    { name: 'author_info', label: 'Author Data', type: 'author'}
-  ], []);
-
-  const jobTitleAndDescription: FieldConfig<FormValues>[] = useMemo(() => [
+    { name: 'author_info', label: 'Author Data', type: 'author'},
     { name: 'short_description', label: 'Job Title', type: 'text', placeholder: 'Job Title...'},
     { name: 'long_description', label: 'Description', type: 'textarea', placeholder: 'Description...'},
-  ], []);
-
-  const addBackgroundImage: FieldConfig<FormValues>[] = useMemo(() => [
     { name: 'background_image', label: 'Background Image', type: 'image_uploader'},
     { name: 'logo', label: 'Job/Firm Logo', type: 'image_uploader'},
-  ], []);
-
-  const aggreement_type: FieldConfig<FormValues>[] = useMemo(() => [
     { name: 'agreement_type', label: 'Agreement type', type: 'checkbox', options: AgreementTypeOptions},
-  ], []);
-
-  const schedule: FieldConfig<FormValues>[] = useMemo(() => [
     { name: 'schedule', label: 'Schedule', type: 'checkbox', options: ScheduleOptions},
-  ], []);
-
-  const experience_requirement: FieldConfig<FormValues>[] = useMemo(() => [
     { name: 'experience_requirement', label: 'Experience Requirement', type: 'checkbox', options: WorkExperienceOptions},
-  ], []);
-
-  const transport_availability: FieldConfig<FormValues>[] = useMemo(() => [
     { name: 'transport_availability', label: 'Transport Availability', type: 'checkbox', options: TransportAvailabilityOptions},
-  ], []);
-
-  const additional_requirements: FieldConfig<FormValues>[] = useMemo(() => [
     { name: 'additional_requirements', label: 'Additional Requirements', type: 'checkbox', options: AdditionalRequirements},
-  ], []);
-
-  const type_of_work: FieldConfig<FormValues>[] = useMemo(() => [
     { name: 'type_of_work', label: 'Type Of Work', type: 'checkbox', options: TypeOfWorkOptions},
   ], []);
+
+  const getFields = (names: (keyof FormValues | string)[]) => 
+    allFieldsConfig.filter(field => names.includes(field.name));
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -143,6 +123,7 @@ function AddJobPost() {
     try {
       setLoading(true);
       await createAJob(formData);
+      toast.success("Job has been successfully created.")
     } catch (error: any) {
       console.error(error);
       const msg = error.response?.data?.message || "An unexpected error occurred while creating a job.";
@@ -199,17 +180,25 @@ function AddJobPost() {
                 <FieldForm 
                   form={form} 
                   formId="add-job-form" 
-                  fieldsConfig={jobTitleAndDescription}
+                  fieldsConfig={getFields(['short_description', 'long_description'])}
                   onSubmit={onSubmit}
                 />         
               </div>
-
 
               <div className='mt-5'>
                 <FieldForm 
                   form={form} 
                   formId="add-job-form" 
-                  fieldsConfig={addBackgroundImage}
+                  fieldsConfig={getFields(['background_image'])}
+                  onSubmit={onSubmit}
+                />
+              </div>
+
+              <div className='mt-5'>
+                <FieldForm 
+                  form={form} 
+                  formId="add-job-form" 
+                  fieldsConfig={getFields(['logo'])}
                   onSubmit={onSubmit}
                 />
               </div>
@@ -222,7 +211,7 @@ function AddJobPost() {
                 <FieldForm 
                   form={form} 
                   formId="add-job-form" 
-                  fieldsConfig={aggreement_type}
+                  fieldsConfig={getFields(['agreement_type'])}
                   onSubmit={onSubmit}
                 />
 
@@ -230,7 +219,7 @@ function AddJobPost() {
                 <FieldForm 
                   form={form} 
                   formId="add-job-form" 
-                  fieldsConfig={schedule}
+                  fieldsConfig={getFields(['schedule'])}
                   onSubmit={onSubmit}
                 />
 
@@ -238,7 +227,7 @@ function AddJobPost() {
                 <FieldForm 
                   form={form} 
                   formId="add-job-form" 
-                  fieldsConfig={experience_requirement}
+                  fieldsConfig={getFields(['experience_requirement'])}
                   onSubmit={onSubmit}
                 />
                 
@@ -246,7 +235,7 @@ function AddJobPost() {
                 <FieldForm 
                   form={form} 
                   formId="add-job-form" 
-                  fieldsConfig={transport_availability}
+                  fieldsConfig={getFields(['transport_availability'])}
                   onSubmit={onSubmit}
                 />
 
@@ -254,7 +243,7 @@ function AddJobPost() {
                 <FieldForm 
                   form={form} 
                   formId="add-job-form" 
-                  fieldsConfig={additional_requirements}
+                  fieldsConfig={getFields(['additional_requirements'])}
                   onSubmit={onSubmit}
                 />
 
@@ -262,7 +251,7 @@ function AddJobPost() {
                 <FieldForm 
                   form={form} 
                   formId="add-job-form" 
-                  fieldsConfig={type_of_work}
+                  fieldsConfig={getFields(['type_of_work'])}
                   onSubmit={onSubmit}
                 />
               </div>
@@ -272,7 +261,7 @@ function AddJobPost() {
                 <FieldForm 
                   form={form} 
                   formId="add-job-form" 
-                  fieldsConfig={addJobConfig}
+                  fieldsConfig={getFields(['category', 'location', 'payment', 'currency', 'author_info'])}
                   onSubmit={onSubmit}
                 />
               </div>

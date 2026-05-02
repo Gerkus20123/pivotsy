@@ -64,14 +64,14 @@ function CategorySelectCase({
                 <Menu size={15} />
             </SheetTrigger>
 
-            <SheetContent side="top" className="rounded-xl lg:m-40 lg:p-10 m-20 p-10 mt-30">
-                <div className="flex flex-col gap-4 p4 h-[50vh]">
+            <SheetContent side="top" className="rounded-xl lg:m-40 lg:p-10 m-8 p-5 lg:mt-30 mt-30">
+                <div className="flex flex-col gap-4 p-4 lg:h-[450px]">
                     <h3 className="text-lg font-bold">
                         {selectedCat ? `Subcategories of ${selectedCat.name}` : "Choose Category"}
                     </h3>
 
                     <CustomScroll 
-                            className='w-full rounded-xl lg:max-h-[320px] xl:h-75 h-50'
+                            className='w-full rounded-xl lg:max-h-[360px] lg:h-120 md:h-180 h-140'
                             childrenType='mr-10'
                         >
                         <div className="grid grid-cols-1 gap-2">
@@ -94,7 +94,7 @@ function CategorySelectCase({
                                             className="flex justify-between items-center p-4 border 
                                             rounded-md hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer"
                                         >
-                                            <div className='flex gap-2'>
+                                            <div className='flex gap-2 items-center'>
                                                 {(() => {
 
                                                     const categoryConfig = JobCategoryOptions.find(c => c.name === cat.name);
@@ -108,10 +108,14 @@ function CategorySelectCase({
                                                         />
                                                     ) : null;
                                                 })()}
-                                                {cat.name}
+                                                <p className='lg:text-sm text-xs'>{cat.name}</p>
                                             </div>
                                             
-                                            {cat.subcategory && <span className="text-gray-400">→</span>}
+                                            {cat.subcategory && 
+                                                <span className="text-gray-400 ml-5">
+                                                    →
+                                                </span>
+                                            }
                                         </button>
                                     ))
                                 ) : (

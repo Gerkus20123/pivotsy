@@ -39,7 +39,7 @@ function CurrencySelectCase({
                 <span>{field.value || config.placeholder || "Select currency..."}</span>
                 <Menu size={18} />
             </SheetTrigger>
-            <SheetContent side="top" className="rounded-xl lg:m-40 lg:p-10 m-20 p-10 mt-30">
+            <SheetContent side="top" className="rounded-xl lg:m-40 lg:p-10 m-8 p-5 lg:mt-30 mt-30">
                 <div className="flex flex-col gap-4 p-4 overflow-y-auto h-[50vh]">
 
                     <h3 className="text-lg font-bold">

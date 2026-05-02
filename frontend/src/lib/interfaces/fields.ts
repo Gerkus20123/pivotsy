@@ -22,7 +22,7 @@ export interface SelectOption {
 
 export interface FieldConfig<T extends FieldValues> {
     name: Path<T>;
-    label: string;
+    label?: string;
     placeholder?: string;
     type: FieldTypes;
     options?: SelectOption[];

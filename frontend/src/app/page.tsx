@@ -88,7 +88,7 @@ function LandingScreen() {
 
       {/* Login/Register form */}
       <Card className="z-1 lg:w-full lg:h-[660px] lg:flex-row lg:p-20 lg:max-w-6xl max-w-2xl w-full bg-white backdrop-blur-sm shadow-2xl border-none h-auto
-      rounded-3xl p-20 flex flex-col justify-between shrink-0 transition-all duration-500">
+      rounded-3xl p-10 flex flex-col lg:justify-between shrink-0 transition-all duration-500">
           
           <div className='flex flex-col justify-center items-center w-full lg:w-1/2'>
             <Image 
@@ -102,7 +102,7 @@ function LandingScreen() {
 
             <div className='flex flex-col gap-5 items-center justify-center mt-10'>
               <h1 className="font-bold text-2xl"> Welcome to PivotSY </h1>
-              <h2 className="text-l"> The future of professional networking and job hunting. </h2>
+              <h2 className="text-l text-center"> The future of professional networking and job hunting. </h2>
             </div>
           </div>
           

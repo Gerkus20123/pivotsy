@@ -1,34 +1,31 @@
-import React from 'react'
+'use client'
+
 import { Button } from './ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation'
 
 function Pagination({
     currentPage,
     totalPages,
-    onPageChange
 } : {
     currentPage: number,
     totalPages: number,
-    onPageChange: (page: number) => void
 }) {
 
-    const handlePreviousPage = () => {
-        if (currentPage > 1) {
-            onPageChange(currentPage - 1)
-        }      
-    };
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
-    const handleNextPage = () => {
-        if (currentPage < totalPages) {
-            onPageChange(currentPage + 1)
-        }
+    const handlePageChange = (page: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', page.toString());
+        router.push(`?${params.toString()}`);
     };
 
     return (
         <div className='flex items-center justify-center gap-5 mt-10'>
             <Button
                 variant="outline"
-                onClick={handlePreviousPage}
+                onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
             >
                 <ArrowLeft />
@@ -40,7 +37,7 @@ function Pagination({
             
             <Button
                 variant="default"
-                onClick={handleNextPage}
+                onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
             >
                 <ArrowRight />

@@ -1,5 +1,6 @@
+import json
 from unicodedata import category
-from marshmallow import Schema, fields, post_load, validate
+from marshmallow import Schema, fields, post_load, pre_load, validate
 
 class AuthorInfoSchema(Schema):
     """Schema for job author"""
@@ -68,6 +69,23 @@ class PlainJobSchema(Schema):
             data["job_author_name"] = info.get("name")
             data["job_phone_number"] = info.get("phone_number")
             data["job_company_name"] = info.get("company_name")
+        return data
+    
+    @pre_load
+    def handle_author_info_json(self, data, **kwargs):
+        if hasattr(data, "to_dict"):
+            data = data.to_dict()
+        else:
+            data = dict(data)
+
+        author_info = data.get("author_info")
+        
+        if isinstance(author_info, str):
+            try:
+                data["author_info"] = json.loads(author_info)
+            except (json.JSONDecodeError, TypeError):
+                pass
+        
         return data
 
 class JobSchema(PlainJobSchema):

@@ -11,17 +11,22 @@ function CheckboxCase({
     field: any,
     getFieldId: any
 }) {
+
+    const currentValue = field.value ?? (Array.isArray(config.options) ? [] : "");
+
     return (
         <div className="flex flex-col gap-3 mt-2">
-            {config.options?.map((opt) => {
+            {config.options?.map((opt, index) => {
 
                 // Checking wether the value is in the table (for multiple checked options)
-                const isChecked = Array.isArray(field.value) 
-                    ? field.value.includes(opt.value) 
-                    : field.value === opt.value;
+                const isChecked = Array.isArray(currentValue) 
+                    ? currentValue.includes(opt.value) 
+                    : currentValue === opt.value;
                 
-                const checkboxId = getFieldId(config.name as string, opt.value);
-                
+                    const checkboxId = index === 0 
+                    ? getFieldId(config.name as string) 
+                    : getFieldId(config.name as string, opt.value);
+                    
                 return (
                     <div key={opt.value} className="flex items-center gap-2">
                         <Checkbox

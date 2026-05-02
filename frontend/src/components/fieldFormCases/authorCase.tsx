@@ -3,9 +3,11 @@ import { FieldLabel } from "@/components/ui/field"
 import { Input } from '@base-ui/react';
 
 function AuthorCase({
-    field
+    field,
+    base_id
 } : {
-    field: any
+    field: any,
+    base_id: string
 }) {
 
     const value = (field.value as Author) || {};
@@ -22,9 +24,15 @@ function AuthorCase({
         <div className="space-y-4 p-4 border rounded-xl bg-gray-50/50">
             {/* Name and Surname */}
             <div className="space-y-2">
-                <FieldLabel className="text-xs text-muted-foreground font-bold">Name And Surname</FieldLabel>
+                <FieldLabel 
+                    className="text-xs text-muted-foreground font-bold"
+                    htmlFor={base_id}
+                >
+                    Name And Surname
+                </FieldLabel>
                 <div className='mx-2'>
                     <Input
+                        id={base_id}
                         placeholder="eg. John Smith"
                         value={value.name || ""}
                         onChange={(e) => updateAuthor('name', e.target.value)}
@@ -36,9 +44,15 @@ function AuthorCase({
 
             {/* Phone */}
             <div className="space-y-2">
-                <FieldLabel className="text-xs text-muted-foreground font-bold">Phone Number</FieldLabel>
+                <FieldLabel 
+                    className="text-xs text-muted-foreground font-bold"
+                    htmlFor={`${base_id}-phone_number`}
+                >
+                    Phone Number
+                </FieldLabel>
                 <div className='mx-2'>
                     <Input
+                        id={`${base_id}-phone_number`}
                         type="tel"
                         placeholder="e.g. +48 000 000 000"
                         value={value.phone_number || ""}
@@ -51,9 +65,15 @@ function AuthorCase({
 
             {/* Firm Name */}
             <div className="space-y-2">
-                <FieldLabel className="text-xs text-muted-foreground font-bold">Firm Name (Optional)</FieldLabel>
+                <FieldLabel 
+                    className="text-xs text-muted-foreground font-bold"
+                    htmlFor={`${base_id}-company_name`}
+                >
+                    Firm Name (Optional)
+                </FieldLabel>
                 <div className='mx-2'>
                     <Input
+                        id={`${base_id}-company_name`}
                         placeholder="Name of your firm"
                         value={value.company_name || ""}
                         onChange={(e) => updateAuthor('company_name', e.target.value)}

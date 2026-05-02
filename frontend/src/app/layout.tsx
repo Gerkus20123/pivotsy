@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "../hooks/auth"
 import CustomScroll from "@/components/scrollbar";
+import { Toaster } from 'sonner';
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -33,7 +34,8 @@ export default function RootLayout({
     >
       <body className={cn("h-full font-montserrat overflow-hidden", font.className)}>
         <AuthProvider>
-          <CustomScroll className="h-full">
+          <CustomScroll className="h-full" childrenType="">
+            <Toaster />
             {children}
           </CustomScroll>
         </AuthProvider>

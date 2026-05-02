@@ -165,11 +165,10 @@ class UserFollowedJob(MethodView):
 
         return job
 
-@blp.route("/user/<int:user_id>/jobs")
+@blp.route("/users/<int:user_id>/jobs")
 class UserJobs(MethodView):
 
     @jwt_required()
-
     @blp.arguments(JobQueryArgsSchema, location="query")
     @blp.response(200, JobPaginationSchema)
     def get(self, args, user_id):
@@ -191,3 +190,59 @@ class UserJobs(MethodView):
             "current_page": pagination.page,
             "items": pagination.items
         }
+
+@blp.route("/users/<int:user_id>/jobs/<int:job_id>")
+class UserJob(MethodView):
+
+    @jwt_required()
+    def delete(self, user_id, job_id):
+        """Delete a job of a user"""
+
+        job = JobModel.query.filter_by(id=job_id, author_id=user_id).first_or_404()
+
+        db.session.delete(job)
+        db.session.commit()
+        return {"message": "Job has been successfully deleted."}
+
+    @jwt_required()
+    @blp.arguments(JobSchema, location="form")
+    @blp.response(200, JobSchema)
+    def put(self, job_data, user_id, job_id):
+        """Update a job of a user"""
+
+        job = JobModel.query.filter_by(id=job_id, author_id=user_id).first_or_404()
+
+        if job:
+            job.short_description = job_data.get("short_description", job.short_description)
+            job.long_description = job_data.get("long_description", job.long_description)
+            job.category = job_data.get("category", job.category)
+            job.subcategory = job_data.get("subcategory", job.subcategory)
+
+            if "logo" in job_data:
+                job.logo = job_data["logo"]
+                
+            if "background_image" in job_data:
+                job.background_image = job_data["background_image"]
+
+            job.payment = job_data.get("payment", job.payment)
+            job.currency = job_data.get("currency", job.currency)
+            job.agreement_type = job_data.get("agreement_type", job.agreement_type)
+            job.schedule = job_data.get("schedule", job.schedule)
+            job.location = job_data.get("location", job.location)
+            job.experience_requirement = job_data.get("experience_requirement", job.experience_requirement)
+            job.transport_availability = job_data.get("transport_availability", job.transport_availability)
+            job.additional_requirements = job_data.get("additional_requirements", job.additional_requirements)
+            job.type_of_work = job_data.get("type_of_work", job.type_of_work)
+            job.job_author_name = job_data.get("job_author_name", job.job_author_name)
+            job.job_phone_number = job_data.get("job_phone_number", job.job_phone_number)
+            job.job_company_name = job_data.get("job_company_name", job.job_company_name)
+        else:
+            job = JobModel(id=job_id,**job_data)
+
+        try:
+            db.session.add(job)
+            db.session.commit()
+        except SQLAlchemyError:
+            abort(500, message="Error while updating the job.")
+
+        return job

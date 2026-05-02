@@ -73,18 +73,15 @@ function JobOffer({ params }: PageProps) {
     
     return (
         <div>
-            <div className="min-h-screen flex flex-col gap-4 p-5">
+            <div className="min-h-screen flex flex-col gap-4 lg:p-5 md:p-5 p-1">
 
                 {/* Job Background Image */}
                 {job.background_image && (
-                    <div className="relative w-full justify-center flex h-[300px] md:h-[450px] overflow-hidden rounded-xl shadow-sm mb-10">
+                    <div className="relative w-full justify-center flex h-[100px] md:h-[450px] lg:h-[450px] overflow-hidden rounded-xl shadow-sm mb-10">
                         <img 
                             src={`${API_BASE_URL}${job.background_image}`}
                             alt='Job Background Image'
-                            width={1400}
-                            height={100}
-                            className='object-cover w-full'
-                            sizes="(max-width: 768px) 100vw, 800px"
+                            className='object-cover w-full lg:w-full lg:h-full md:h-120 h-40'
                         />
                         <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
                     </div> 
@@ -93,7 +90,7 @@ function JobOffer({ params }: PageProps) {
                 {/* Firm Logo & Created At & Title */}
                 <div className='lg:flex items-center lg:justify-between'>
 
-                    <div className='flex items-center gap-4 mb-3 lg:mb-0'>
+                    <div className='flex gap-4 mb-3 lg:mb-0 justify-between md:justify-start lg:justify-between items-center'>
                         {/* Firm Logo */}
                         {job.logo && (
                             <img 
@@ -107,11 +104,11 @@ function JobOffer({ params }: PageProps) {
 
                         {/* Created at & Job Offer Title */}   
                         <div>
-                            <p className="text-sm text-gray-500">
+                            <p className="lg:text-xl md:text-sm text-[10px] text-gray-500">
                                 Created At: {new Date(job.created_at).toLocaleDateString('pl-PL')}
                             </p>
-                            <p className="text-xl font-bold w-full">{job.short_description}</p> 
-                            <p>{job.user?.company_name}</p>
+                            <p className="lg:text-xl md:text-xl text-xs font-bold w-full">{job.short_description}</p> 
+                            <p className="lg:text-xl md:text-sm text-[10px]">{job.user?.company_name}</p>
                         </div>
 
                         {/* Follow a job */}
@@ -127,7 +124,7 @@ function JobOffer({ params }: PageProps) {
                     </div>
 
                     {/* Call & Apply to Job section */}
-                    <div className='flex gap-4 lg:w-full lg:max-w-md'>
+                    <div className='flex gap-4 lg:w-full lg:max-w-xs'>
                         <Button
                             className="flex-1"
                             onClick={() => setIsPhoneNumberShown(isPhoneNumberShown ? false : true)}
@@ -135,7 +132,7 @@ function JobOffer({ params }: PageProps) {
                             {isPhoneNumberShown ? (
                                 <div className='flex gap-2 items-center'>
                                     <PhoneCall />
-                                    {job.user?.phone_number}
+                                    <p className='lg:text-sm md:text-sm text-[10px]'>{job.user?.phone_number}</p>
                                 </div>
                                 ) : "Call"
                             }

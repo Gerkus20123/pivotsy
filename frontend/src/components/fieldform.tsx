@@ -68,9 +68,8 @@ function FieldForm<T extends FieldValues>(
             case 'textarea':
                 return (
                     <TextArea 
-                        value={field.value || ""} 
-                        onChange={(val: string) => field.onChange(val)} 
-                        field={field} 
+                        value={field.value ?? ""} 
+                        onChange={(val: string) => field.onChange(val)}
                         config={config} 
                         base_id={baseId} 
                     />
@@ -86,7 +85,7 @@ function FieldForm<T extends FieldValues>(
                             field.onChange(val === "" ? "" : Number(val));
                           }}
                         id={baseId}
-                        value={Number.isNaN(field.value) ? "" : field.value}
+                        value={field.value ?? ""}
                         placeholder={config.placeholder}
                         className="rounded-lg"
                     />
@@ -125,6 +124,7 @@ function FieldForm<T extends FieldValues>(
                 return (
                     <AuthorCase 
                         field={field}
+                        base_id={baseId}
                     />
                 );
             
@@ -133,6 +133,7 @@ function FieldForm<T extends FieldValues>(
                     <ImageUploadCase 
                         field={field}
                         config={config}
+                        base_id={baseId}
                     />
                 )
 

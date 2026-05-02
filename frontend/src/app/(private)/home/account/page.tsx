@@ -10,6 +10,7 @@ import { FieldConfig } from '@/lib/interfaces/fields';
 import { Job } from '@/lib/interfaces/job';
 import { User } from '@/lib/interfaces/user';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import z from 'zod';
@@ -22,10 +23,13 @@ function Account() {
     {"id": 3, "title": "Interested in Job, sending CV", "content": "Hello, I am interested in the job. I send my CV.", "author": "VasiaPupkin", "created_at": "13.04.2026"},
   ];
 
+  const searchParams = useSearchParams();
+  const urlPage = Number(searchParams.get('page')) || 1;
+
   const [userData, setUserData] = useState<User>();
   const [isEdit, setIsEdit] = useState(false);
+  const [isEditJob, setIsEditJob] = useState(false);
   const [userCreatedJobs, setUserCreatedJobs] = useState<Job[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const formSchema = z.object({
@@ -81,8 +85,8 @@ function Account() {
   }, []);
 
   useEffect(() => {
-    loadUserJobOffers(currentPage)
-  }, [currentPage])
+    loadUserJobOffers(urlPage)
+  }, [urlPage])
 
   const editBasicInformation = async (data: FormValues) => {
     try {
@@ -97,7 +101,7 @@ function Account() {
       await loadUser()
       setIsEdit(false);
     } catch (error) {
-      console.error("Błąd edycji:", error);
+      console.error("An editing erorr has occured:", error);
     }
   };
 
@@ -116,7 +120,9 @@ function Account() {
               
                 <h2 className='text-xl font-bold text-gray-700 mb-4'> Basic Information</h2>
                 
-                <div key={isEdit ? 'edit-mode' : 'view-mode'}>
+                <div 
+                  key={isEdit ? 'edit-mode' : 'view-mode'}
+                >
                   {isEdit ? (
                       <FieldForm
                         fieldsConfig={editUserConfig as any}
@@ -180,7 +186,7 @@ function Account() {
               {/* Messages (simplified version) */}
               <div className="mt-8 p-4 border border-slate-300 rounded-xl flex flex-col gap-2" >
                 
-                <h2 className='text-xl font-bold text-gray-700'> Messages </h2>
+                <h2 className='text-xl font-bold text-gray-700'> Recent Messages </h2>
 
                 <div className='flex gap-2'>
                   <CustomScroll
@@ -218,12 +224,12 @@ function Account() {
 
               <JobCard 
                 jobs={userCreatedJobs}
+                isAccountPage={true}
               />
               
               <Pagination 
-                currentPage={currentPage}
+                currentPage={urlPage}
                 totalPages={totalPages}
-                onPageChange={(newPage: number) => setCurrentPage(newPage)}
               />
             </div>
     </div>
